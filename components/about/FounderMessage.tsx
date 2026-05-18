@@ -4,14 +4,14 @@ export default function FounderMessage() {
   return (
     <section className="py-20">
       <article className="mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:px-8">
-        <figure className="flex aspect-square items-center justify-center rounded-lg bg-surface p-8">
+        <figure className="flex aspect-square items-center justify-center rounded-lg bg-surface p-8 dark:bg-card">
           <AecLogo size="xl" />
         </figure>
         <section>
           <p className="mb-2 font-condensed text-sm font-semibold uppercase tracking-widest text-accent">
             Founder&apos;s Message
           </p>
-          <h2 className="mb-2 font-display text-2xl font-bold text-primary">
+          <h2 className="mb-2 font-display text-2xl font-bold text-primary dark:text-foreground">
             Mr. Hozefa Yusuf Ali Dhinojwala
           </h2>
           <p className="mb-6 text-muted">

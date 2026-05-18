@@ -20,7 +20,7 @@ export default function CertificateModal({
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg bg-white"
+        className="relative max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg bg-card"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -32,7 +32,7 @@ export default function CertificateModal({
           <X className="h-5 w-5" />
         </button>
         <div className="border-b border-border p-6">
-          <h3 className="font-display text-2xl font-bold text-primary">
+          <h3 className="font-display text-2xl font-bold text-primary dark:text-foreground">
             {cert.name}
           </h3>
           <p className="text-muted">

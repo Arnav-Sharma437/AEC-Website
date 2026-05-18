@@ -8,7 +8,7 @@ export default function Footer() {
   const topCategories = CATEGORIES.slice(0, 6);
 
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-primary text-white dark:bg-[#0a1018]">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>

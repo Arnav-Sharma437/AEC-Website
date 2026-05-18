@@ -11,9 +11,9 @@ export default function OurCertifications() {
   );
 
   return (
-    <section className="bg-surface py-20">
+    <section className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary">
+        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary dark:text-foreground">
           Our Certifications
         </h2>
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,10 +22,10 @@ export default function OurCertifications() {
               <button
                 type="button"
                 onClick={() => setSelected(cert)}
-                className="flex w-full flex-col items-center rounded-lg border border-border bg-white p-8 text-center shadow-sm transition hover:border-accent hover:shadow-md"
+                className="flex w-full flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm transition hover:border-accent hover:shadow-md"
               >
                 <FileText className="mb-4 h-16 w-16 text-accent" />
-                <h3 className="mb-1 font-display font-semibold text-primary">
+                <h3 className="mb-1 font-display font-semibold text-primary dark:text-foreground">
                   {cert.name}
                 </h3>
                 <p className="mb-4 text-sm text-muted">{cert.issuingBody}</p>

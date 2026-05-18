@@ -9,12 +9,12 @@ export default function BranchCards() {
       {branches.map((branch) => (
         <li
           key={branch.city}
-          className="rounded-lg border border-border bg-white p-6 shadow-sm"
+          className="rounded-lg border border-border bg-card p-6 shadow-sm"
         >
           <p className="mb-1 font-display text-xs font-bold uppercase text-accent">
             {branch.label} — {branch.city}
           </p>
-          <p className="mb-4 text-sm font-semibold text-primary">
+          <p className="mb-4 text-sm font-semibold text-primary dark:text-foreground">
             {branch.entity}
           </p>
           <ul className="space-y-3">
@@ -33,7 +33,7 @@ export default function BranchCards() {
                   </a>
                   <a
                     href={`tel:+${contact.number}`}
-                    className="inline-flex items-center gap-1 rounded border border-border px-3 py-1.5 text-xs font-semibold text-primary hover:bg-surface"
+                    className="inline-flex items-center gap-1 rounded border border-border px-3 py-1.5 text-xs font-semibold text-primary hover:bg-surface dark:text-foreground dark:hover:bg-surface"
                   >
                     <Phone className="h-3.5 w-3.5" /> Call
                   </a>

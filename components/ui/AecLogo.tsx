@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export const LOGO_SRC = "/images/logo/aec-logo.png";
 
 const sizeClasses = {
-  sm: "h-10 w-auto",
+  nav: "h-[58px] w-auto",
   md: "h-12 w-auto",
   lg: "h-14 w-auto",
   xl: "h-52 w-auto max-w-full",
@@ -25,10 +25,13 @@ export default function AecLogo({
     <Image
       src={LOGO_SRC}
       alt="Alamdaar Engineering Concern"
-      width={160}
-      height={200}
+      width={232}
+      height={290}
+      quality={100}
+      unoptimized
       priority={priority}
       className={cn("object-contain", sizeClasses[size], className)}
+      style={{ imageRendering: "auto" }}
     />
   );
 }

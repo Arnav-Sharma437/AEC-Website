@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import StickyCTA from "@/components/layout/StickyCTA";
+import ThemeProvider from "@/components/providers/ThemeProvider";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -42,13 +43,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${oswald.variable} ${barlow.variable} ${barlowCondensed.variable}`}
     >
-      <body className="font-body antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <StickyCTA />
+      <body className="font-body">
+        <ThemeProvider>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+          <StickyCTA />
+        </ThemeProvider>
       </body>
     </html>
   );

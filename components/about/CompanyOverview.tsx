@@ -35,9 +35,9 @@ export default function CompanyOverview() {
   const current = tabs.find((t) => t.id === active)!;
 
   return (
-    <section className="bg-surface py-20">
+    <section className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary">
+        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary dark:text-foreground">
           About Alamdaar Engineering Concern
         </h2>
         <nav className="mb-8 flex flex-wrap justify-center gap-2">
@@ -49,7 +49,7 @@ export default function CompanyOverview() {
               className={`rounded-md px-4 py-2 font-display text-sm font-semibold uppercase transition ${
                 active === tab.id
                   ? "bg-primary text-white"
-                  : "bg-white text-primary hover:bg-accent hover:text-primary"
+                  : "bg-card text-primary hover:bg-accent hover:text-primary dark:text-foreground"
               }`}
             >
               {tab.label}
@@ -63,7 +63,7 @@ export default function CompanyOverview() {
           {stats.map((s) => (
             <li
               key={s.label}
-              className="rounded-lg bg-white p-6 text-center shadow-sm"
+              className="rounded-lg bg-card p-6 text-center shadow-sm"
             >
               <p className="font-display text-3xl font-bold text-accent">
                 {s.value}

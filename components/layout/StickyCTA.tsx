@@ -32,7 +32,7 @@ export default function StickyCTA() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="absolute right-14 top-0 w-72 rounded-lg bg-white p-3 shadow-xl"
+              className="absolute right-14 top-0 w-72 rounded-lg bg-card p-3 shadow-xl"
             >
               {branches.map((branch, i) => (
                 <motion.section
@@ -96,7 +96,7 @@ export default function StickyCTA() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="absolute right-14 top-0 w-56 rounded-lg bg-white p-3 shadow-xl"
+              className="absolute right-14 top-0 w-56 rounded-lg bg-card p-3 shadow-xl"
             >
               {ctaLinks.instagram.map((ig, i) => (
                 <motion.a

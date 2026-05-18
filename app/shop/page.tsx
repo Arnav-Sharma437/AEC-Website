@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ShopPage() {
   return (
     <>
-      <header className="bg-primary pb-16 pt-32">
+      <header className="bg-primary pb-16 pt-32 dark:bg-[#0a1018]">
         <article className="mx-auto max-w-7xl px-4 text-center lg:px-8">
           <h1 className="font-display text-4xl font-bold uppercase text-white md:text-5xl">
             Product Catalogue

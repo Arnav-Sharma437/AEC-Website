@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <header className="bg-primary pb-16 pt-32">
+      <header className="bg-primary pb-16 pt-32 dark:bg-[#0a1018]">
         <article className="mx-auto max-w-7xl px-4 text-center lg:px-8">
           <h1 className="font-display text-4xl font-bold uppercase text-white">
             Contact Us
@@ -21,7 +21,7 @@ export default function ContactPage() {
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <article className="mb-16 grid gap-12 lg:grid-cols-2">
           <section>
-            <h2 className="mb-2 font-display text-2xl font-bold text-primary">
+            <h2 className="mb-2 font-display text-2xl font-bold text-primary dark:text-foreground">
               Alamdaar Engineering Concern
             </h2>
             <p className="mb-6 text-accent italic">
@@ -29,17 +29,17 @@ export default function ContactPage() {
             </p>
             <ul className="space-y-4 text-muted">
               <li>
-                <strong className="text-primary">Office:</strong>
+                <strong className="text-primary dark:text-foreground">Office:</strong>
                 <br />
                 4, I.R. Belilious Lane, Howrah 711101, West Bengal
               </li>
               <li>
-                <strong className="text-primary">Factory:</strong>
+                <strong className="text-primary dark:text-foreground">Factory:</strong>
                 <br />
                 Domjur Makardah
               </li>
               <li>
-                <strong className="text-primary">Email:</strong>{" "}
+                <strong className="text-primary dark:text-foreground">Email:</strong>{" "}
                 <a
                   href="mailto:alamdaar.ropeclamps@gmail.com"
                   className="text-accent hover:underline"
@@ -48,13 +48,13 @@ export default function ContactPage() {
                 </a>
               </li>
               <li>
-                <strong className="text-primary">GSTIN:</strong> 19AFRPA7937G1Z1
+                <strong className="text-primary dark:text-foreground">GSTIN:</strong> 19AFRPA7937G1Z1
               </li>
             </ul>
           </section>
           <EnquiryForm />
         </article>
-        <h2 className="mb-8 text-center font-display text-2xl font-bold uppercase text-primary">
+        <h2 className="mb-8 text-center font-display text-2xl font-bold uppercase text-primary dark:text-foreground">
           Our Branches
         </h2>
         <BranchCards />

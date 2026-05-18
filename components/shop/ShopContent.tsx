@@ -37,10 +37,10 @@ export default function ShopContent() {
   return (
     <section className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 lg:flex-row lg:px-8">
       <aside className="lg:w-64 lg:shrink-0">
-        <h2 className="mb-4 font-display text-lg font-semibold uppercase text-primary">
+        <h2 className="mb-4 font-display text-lg font-semibold uppercase text-primary dark:text-foreground">
           Categories
         </h2>
-        <ul className="space-y-2 rounded-lg border border-border bg-white p-4 lg:sticky lg:top-24">
+        <ul className="space-y-2 rounded-lg border border-border bg-card p-4 lg:sticky lg:top-24">
           <li>
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <input
@@ -71,7 +71,7 @@ export default function ShopContent() {
       <main className="flex-1">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-muted">
-            <strong className="text-primary">{filtered.length}</strong> products
+            <strong className="text-primary dark:text-foreground">{filtered.length}</strong> products
             found
           </p>
           <label className="relative max-w-sm flex-1">
@@ -81,7 +81,7 @@ export default function ShopContent() {
               placeholder="Search products..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-md border border-border py-2 pl-10 pr-4 text-sm focus:border-accent focus:outline-none"
+              className="w-full rounded-md border border-border bg-card py-2 pl-10 pr-4 text-sm text-foreground focus:border-accent focus:outline-none"
             />
           </label>
         </header>

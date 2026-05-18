@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import GetQuoteButton from "@/components/ui/GetQuoteButton";
 import AecLogo from "@/components/ui/AecLogo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -17,38 +18,13 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isHome = pathname === "/";
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const solid = scrolled || !isHome;
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300",
-        solid
-          ? "bg-primary shadow-lg"
-          : "bg-transparent"
-      )}
-    >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <AecLogo size="sm" priority />
-          <span
-            className={cn(
-              "hidden font-display text-sm font-semibold uppercase tracking-wider sm:block",
-              solid ? "text-white" : "text-white"
-            )}
-          >
-            Alamdaar Engineering
-          </span>
+    <header className="fixed top-0 z-50 w-full border-b border-border/70 bg-white shadow-nav dark:border-border dark:bg-card dark:shadow-nav-dark">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
+        <Link href="/" className="flex shrink-0 items-center">
+          <AecLogo size="nav" priority />
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
@@ -57,10 +33,9 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 className={cn(
-                  "font-medium transition hover:text-accent",
-                  pathname === link.href
-                    ? "border-b-2 border-accent text-accent"
-                    : "text-white"
+                  "font-medium text-primary transition hover:text-accent dark:text-foreground",
+                  pathname === link.href &&
+                    "border-b-2 border-accent text-accent"
                 )}
               >
                 {link.label}
@@ -69,22 +44,30 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <GetQuoteButton />
         </div>
 
-        <button
-          type="button"
-          className="text-white md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="text-primary dark:text-foreground"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 top-[72px] z-40 bg-primary md:hidden">
+        <div className="border-t border-border bg-white dark:border-border dark:bg-card md:hidden">
           <ul className="flex flex-col gap-6 p-8">
             {navLinks.map((link) => (
               <li key={link.href}>
@@ -92,8 +75,8 @@ export default function Navbar() {
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "font-display text-2xl font-semibold uppercase",
-                    pathname === link.href ? "text-accent" : "text-white"
+                    "font-display text-2xl font-semibold uppercase text-primary dark:text-foreground",
+                    pathname === link.href && "text-accent"
                   )}
                 >
                   {link.label}

@@ -32,8 +32,8 @@ export default function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-white p-6 shadow-sm">
-      <h3 className="font-display text-xl font-semibold text-primary">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <h3 className="font-display text-xl font-semibold text-primary dark:text-foreground">
         Send an Enquiry
       </h3>
       <label className="block">
@@ -41,7 +41,7 @@ export default function EnquiryForm() {
         <input
           name="name"
           required
-          className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
         />
       </label>
       <label className="block">
@@ -50,7 +50,7 @@ export default function EnquiryForm() {
           name="phone"
           type="tel"
           required
-          className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
         />
       </label>
       <label className="block">
@@ -58,14 +58,14 @@ export default function EnquiryForm() {
         <input
           name="email"
           type="email"
-          className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
         />
       </label>
       <label className="block">
         <span className="mb-1 block text-sm font-medium">Product of Interest</span>
         <select
           name="productInterest"
-          className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
         >
           <option value="">Select category</option>
           {CATEGORIES.map((c) => (
@@ -81,7 +81,7 @@ export default function EnquiryForm() {
           name="message"
           required
           rows={4}
-          className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
         />
       </label>
       <button

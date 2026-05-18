@@ -13,19 +13,19 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-20">
+    <section className="bg-background py-20">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary">
+        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary dark:text-foreground">
           What Our Clients Say
         </h2>
         <ul className="grid gap-6 md:grid-cols-3">
           {visible.map((t) => (
             <li
               key={t.id}
-              className="rounded-lg border border-border bg-white p-6 shadow-sm"
+              className="rounded-lg border border-border bg-card p-6 shadow-sm"
             >
               <p className="mb-4 italic text-muted">&ldquo;{t.quote}&rdquo;</p>
-              <p className="font-semibold text-primary">{t.name}</p>
+              <p className="font-semibold text-primary dark:text-foreground">{t.name}</p>
               <p className="text-sm text-muted">{t.company}</p>
               <p className="mt-2 flex gap-0.5 text-accent">
                 {Array.from({ length: t.rating }).map((_, i) => (
@@ -39,7 +39,7 @@ export default function Testimonials() {
           <button
             type="button"
             onClick={() => setIndex((i) => i - 1)}
-            className="rounded-full border border-border p-2 hover:bg-surface"
+            className="rounded-full border border-border p-2 hover:bg-surface dark:hover:bg-card"
             aria-label="Previous"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -47,7 +47,7 @@ export default function Testimonials() {
           <button
             type="button"
             onClick={() => setIndex((i) => i + 1)}
-            className="rounded-full border border-border p-2 hover:bg-surface"
+            className="rounded-full border border-border p-2 hover:bg-surface dark:hover:bg-card"
             aria-label="Next"
           >
             <ChevronRight className="h-5 w-5" />
