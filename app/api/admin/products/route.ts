@@ -24,8 +24,27 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const products = await Product.find(filter).sort({ createdAt: -1 }).lean();
-    return NextResponse.json(products);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "10", 10))
+    );
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Product.countDocuments(filter),
+    ]);
+
+    return NextResponse.json({
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

@@ -43,11 +43,19 @@ export async function PUT(request: NextRequest) {
     const current = hero[slot] as { url?: string; publicId?: string };
 
     if (action === "delete") {
-      if (current?.publicId) await deleteFromCloudinary(current.publicId);
+      if (current?.publicId) {
+        await deleteFromCloudinary(
+          current.publicId,
+          slot === "video" ? "video" : "image"
+        );
+      }
       hero[slot] = { url: "", publicId: "" };
     } else {
       if (current?.publicId && publicId !== current.publicId) {
-        await deleteFromCloudinary(current.publicId);
+        await deleteFromCloudinary(
+          current.publicId,
+          slot === "video" ? "video" : "image"
+        );
       }
       hero[slot] = { url: url || "", publicId: publicId || "" };
     }

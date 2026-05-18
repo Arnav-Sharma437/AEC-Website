@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import SessionProvider from "@/components/providers/SessionProvider";
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminShell from "@/components/admin/AdminShell";
 
 export default function AdminPanelLayout({
   children,
@@ -10,10 +10,7 @@ export default function AdminPanelLayout({
 }) {
   return (
     <SessionProvider>
-      <div className="flex min-h-screen bg-gray-100">
-        <AdminSidebar />
-        <main className="flex-1 overflow-auto p-8">{children}</main>
-      </div>
+      <AdminShell>{children}</AdminShell>
     </SessionProvider>
   );
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@/data/categories";
+import { uploadWithProgress } from "@/lib/admin-upload-client";
+import UploadProgress from "./UploadProgress";
+import { useToast } from "./ToastProvider";
 
 export interface ProductFormData {
   _id?: string;
@@ -19,7 +22,7 @@ export interface ProductFormData {
 interface ProductFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: ProductFormData) => Promise<void>;
+  onSave: (data: ProductFormData) => Promise<boolean>;
   initial?: ProductFormData | null;
   title: string;
 }
@@ -42,7 +45,9 @@ export default function ProductFormModal({
   initial,
   title,
 }: ProductFormModalProps) {
+  const { toast } = useToast();
   const [form, setForm] = useState<ProductFormData>(initial || empty);
+  const [uploadPercent, setUploadPercent] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -56,50 +61,59 @@ export default function ProductFormModal({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("folder", "products");
-    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (res.ok) {
-      setForm((f) => ({ ...f, image: data.url, imagePublicId: data.publicId }));
+    setUploadPercent(0);
+    try {
+      const data = await uploadWithProgress(file, "products", setUploadPercent);
+      setForm((f) => ({
+        ...f,
+        image: data.url,
+        imagePublicId: data.publicId,
+      }));
+      toast("Image uploaded");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Image upload failed", "error");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
     }
-    setUploading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    await onSave(form);
+    const ok = await onSave(form);
     setSaving(false);
-    onClose();
+    if (ok) {
+      toast(form._id ? "Product updated" : "Product created");
+      onClose();
+    }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Close">
+          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded p-1 hover:bg-gray-100">
             <X className="h-5 w-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-gray-700">
             Name *
             <input
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-gray-700">
             Category *
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.slug} value={c.slug}>
@@ -108,32 +122,45 @@ export default function ProductFormModal({
               ))}
             </select>
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-gray-700">
             Description
             <textarea
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
             />
           </label>
-          <label className="block text-sm">
+          <label className="block text-sm font-medium text-gray-700">
             Price
             <input
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
             />
           </label>
-          <label className="block text-sm">
-            Image {uploading && "(uploading...)"}
-            <input type="file" accept="image/*" onChange={handleImage} className="mt-1" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Product image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImage}
+                disabled={uploading}
+                className="mt-1 block w-full text-sm"
+              />
+            </label>
+            {uploading && <UploadProgress percent={uploadPercent} />}
             {form.image && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={form.image} alt="" className="mt-2 h-24 rounded object-cover" />
+              <img
+                src={form.image}
+                alt="Preview"
+                className="mt-2 h-28 w-28 rounded-lg border object-cover"
+              />
             )}
-          </label>
-          <label className="block text-sm">
+          </div>
+          <label className="block text-sm font-medium text-gray-700">
             Quantity
             <input
               type="number"
@@ -142,29 +169,32 @@ export default function ProductFormModal({
               onChange={(e) =>
                 setForm({ ...form, quantity: Number(e.target.value) })
               }
-              className="mt-1 w-full rounded-lg border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
             />
           </label>
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <input
               type="checkbox"
               checked={form.inStock}
               onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
+              className="rounded"
             />
             In Stock
           </label>
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 border-t pt-4">
             <button
               type="submit"
-              disabled={saving}
-              className="flex-1 rounded-lg bg-accent py-2 font-semibold text-primary"
+              disabled={saving || uploading}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-accent py-2.5 font-semibold text-primary disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Product"}
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {saving ? "Saving..." : form._id ? "Save Changes" : "Create Product"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border px-4 py-2"
+              disabled={saving}
+              className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -174,3 +204,4 @@ export default function ProductFormModal({
     </div>
   );
 }
+

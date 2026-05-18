@@ -4,6 +4,6 @@ export const config = {
   matcher: [
     "/admin/((?!login).*)",
     // Allow seed & check without auth (bootstrap + diagnostics)
-    "/api/admin/((?!seed|check).*)",
+    "/api/admin/((?!seed|check|forgot-password).*)",
   ],
 };

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import SessionProvider from "@/components/providers/SessionProvider";
 
 export default function AdminLoginLayout({

@@ -18,7 +18,11 @@ const links = [
   { href: "/admin/hero", label: "Hero Banner", icon: ImageIcon },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({
+  onNavigate,
+}: {
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
@@ -34,9 +38,10 @@ export default function AdminSidebar() {
           <Link
             key={href}
             href={href}
+            onClick={onNavigate}
             className={cn(
               "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition",
-              pathname === href
+              pathname === href || (href !== "/admin" && pathname.startsWith(href))
                 ? "bg-accent/20 text-accent"
                 : "hover:bg-white/5 hover:text-white"
             )}
