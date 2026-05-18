@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import GetQuoteButton from "@/components/ui/GetQuoteButton";
+import AecLogo from "@/components/ui/AecLogo";
 
 interface Slide {
   type: "video" | "image";
@@ -102,9 +103,7 @@ export default function HeroSlider({ slides = defaultSlides }: { slides?: Slide[
       <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent" />
 
       <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-24 pt-32 lg:px-16 lg:pb-32">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded bg-accent font-display text-2xl font-bold text-primary">
-          AEC
-        </div>
+        <AecLogo size="lg" priority className="mb-4" />
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   },
   description:
     "25+ years of precision engineering. Material handling, lifting equipment, scaffolding & safety gear. Pan India — Kolkata, Hyderabad, Chennai.",
+  icons: {
+    icon: "/images/logo/aec-logo.png",
+    apple: "/images/logo/aec-logo.png",
+  },
 };
 
 export default function RootLayout({

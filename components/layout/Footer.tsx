@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { CATEGORIES } from "@/data/categories";
 import { ctaLinks } from "@/data/branches";
+import AecLogo from "@/components/ui/AecLogo";
 
 export default function Footer() {
   const topCategories = CATEGORIES.slice(0, 6);
@@ -11,9 +12,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded bg-accent font-display text-xl font-bold text-primary">
-              AEC
-            </div>
+            <AecLogo size="md" className="mb-4" />
             <p className="mb-2 text-sm text-white/80">
               Driven by Innovation, Defined by Quality.
             </p>

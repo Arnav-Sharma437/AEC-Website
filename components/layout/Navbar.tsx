@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import GetQuoteButton from "@/components/ui/GetQuoteButton";
+import AecLogo from "@/components/ui/AecLogo";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -38,10 +39,8 @@ export default function Navbar() {
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded bg-accent font-display text-lg font-bold text-primary">
-            AEC
-          </div>
+        <Link href="/" className="flex items-center gap-3">
+          <AecLogo size="sm" priority />
           <span
             className={cn(
               "hidden font-display text-sm font-semibold uppercase tracking-wider sm:block",

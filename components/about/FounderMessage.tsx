@@ -1,9 +1,11 @@
+import AecLogo from "@/components/ui/AecLogo";
+
 export default function FounderMessage() {
   return (
     <section className="py-20">
       <article className="mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:px-8">
-        <figure className="flex aspect-square items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary">
-          <span className="font-display text-8xl font-bold text-accent">AEC</span>
+        <figure className="flex aspect-square items-center justify-center rounded-lg bg-surface p-8">
+          <AecLogo size="xl" />
         </figure>
         <section>
           <p className="mb-2 font-condensed text-sm font-semibold uppercase tracking-widest text-accent">
