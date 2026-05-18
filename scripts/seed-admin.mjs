@@ -12,12 +12,14 @@ function loadEnv() {
       if (m) process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, "");
     }
   } catch {
+    // .env.local optional when vars are set in shell
   }
 }
 
 loadEnv();
 
 const AdminSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true, lowercase: true },
   email: String,
   password: String,
   name: String,
@@ -26,23 +28,60 @@ const AdminSchema = new mongoose.Schema({
 
 const Admin = mongoose.models.Admin || mongoose.model("Admin", AdminSchema);
 
-const email = process.argv[2] || process.env.ADMIN_EMAIL || "admin@aec.com";
-const password = process.argv[3] || process.env.ADMIN_PASSWORD || "admin123";
+/** Default admins — add more here when ready */
+const ADMINS = [
+  {
+    username: "arnavadmin",
+    password: "admin@123",
+    name: "Arnav Admin",
+    role: "superadmin",
+  },
+];
+
+async function upsertAdmin({ username, password, name, role }) {
+  const hash = await bcrypt.hash(password, 12);
+  await Admin.findOneAndUpdate(
+    { username: username.toLowerCase() },
+    {
+      username: username.toLowerCase(),
+      email: "",
+      password: hash,
+      name,
+      role,
+    },
+    { upsert: true, new: true }
+  );
+  console.log(`✓ Admin created: username="${username}"`);
+}
 
 async function main() {
   if (!process.env.MONGODB_URI) {
     console.error("MONGODB_URI not set in .env.local");
     process.exit(1);
   }
+
   await mongoose.connect(process.env.MONGODB_URI);
-  const hash = await bcrypt.hash(password, 12);
-  await Admin.findOneAndUpdate(
-    { email: email.toLowerCase() },
-    { email: email.toLowerCase(), password: hash, name: "AEC Admin", role: "superadmin" },
-    { upsert: true }
-  );
-  console.log("Admin ready:", email);
+
+  // CLI: npm run seed:admin -- <username> <password> [display name]
+  const cliUser = process.argv[2];
+  const cliPass = process.argv[3];
+  const cliName = process.argv[4];
+
+  if (cliUser && cliPass) {
+    await upsertAdmin({
+      username: cliUser,
+      password: cliPass,
+      name: cliName || cliUser,
+      role: "superadmin",
+    });
+  } else {
+    for (const admin of ADMINS) {
+      await upsertAdmin(admin);
+    }
+  }
+
   await mongoose.disconnect();
+  console.log("\nLogin at /admin/login with your username and password.");
 }
 
 main().catch((e) => {

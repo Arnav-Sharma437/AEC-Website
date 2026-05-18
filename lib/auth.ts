@@ -9,15 +9,16 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
         await connectDB();
+        const login = credentials.email.trim().toLowerCase();
         const admin = await Admin.findOne({
-          email: credentials.email.toLowerCase(),
+          $or: [{ username: login }, { email: login }],
         });
         if (!admin) return null;
 
@@ -29,8 +30,8 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: admin._id.toString(),
-          email: admin.email,
-          name: admin.name,
+          email: admin.username,
+          name: admin.name || admin.username,
         };
       },
     }),

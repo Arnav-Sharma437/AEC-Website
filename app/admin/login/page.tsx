@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,13 +16,13 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     const res = await signIn("credentials", {
-      email,
+      email: username,
       password,
       redirect: false,
     });
     setLoading(false);
     if (res?.error) {
-      setError("Invalid email or password");
+      setError("Invalid username or password");
       return;
     }
     router.push("/admin");
@@ -45,12 +45,13 @@ export default function AdminLoginPage() {
           </p>
         )}
         <label className="mb-4 block text-sm text-gray-300">
-          Email
+          Username
           <input
-            type="email"
+            type="text"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="mt-1 w-full rounded-lg border border-white/10 bg-[#0f1419] px-3 py-2 text-white"
           />
         </label>
