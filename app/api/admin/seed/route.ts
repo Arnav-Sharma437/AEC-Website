@@ -36,9 +36,7 @@ export async function POST(request: NextRequest) {
     console.log("[Admin Seed] Admins before:", adminCountBefore);
 
     const authorized =
-      adminCountBefore === 0 ||
-      (envSecret && secret === envSecret) ||
-      force;
+      adminCountBefore === 0 || (envSecret && secret === envSecret);
 
     if (!authorized) {
       return NextResponse.json(

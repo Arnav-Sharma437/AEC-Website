@@ -27,6 +27,13 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          const nextAuthUrl =
+            process.env.NEXTAUTH_URL || process.env.VERCEL_URL;
+          if (!nextAuthUrl?.trim()) {
+            log("NEXTAUTH_URL and VERCEL_URL are not set");
+            return null;
+          }
+
           if (!process.env.MONGODB_URI?.trim()) {
             log("MONGODB_URI is not set");
             return null;
