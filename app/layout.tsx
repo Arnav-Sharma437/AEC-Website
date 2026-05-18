@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Oswald, Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import StickyCTA from "@/components/layout/StickyCTA";
 import ThemeProvider from "@/components/providers/ThemeProvider";
 
 const oswald = Oswald({
@@ -47,12 +44,7 @@ export default function RootLayout({
       className={`${oswald.variable} ${barlow.variable} ${barlowCondensed.variable}`}
     >
       <body className="font-body">
-        <ThemeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <StickyCTA />
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

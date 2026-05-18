@@ -1,8 +1,35 @@
-import { getFeaturedProducts } from "@/data/products";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getFeaturedProducts, type Product } from "@/data/products";
 import ProductCard from "@/components/shop/ProductCard";
 
+function mapApiProduct(p: Record<string, unknown>): Product {
+  return {
+    id: String(p._id),
+    name: String(p.name),
+    category: String(p.categoryName || p.category),
+    categorySlug: String(p.category),
+    description: String(p.description || ""),
+    image: String(p.image || ""),
+    price: String(p.price || "XXX"),
+    featured: true,
+  };
+}
+
 export default function FeaturedProducts() {
-  const featured = getFeaturedProducts();
+  const [featured, setFeatured] = useState<Product[]>(getFeaturedProducts());
+
+  useEffect(() => {
+    fetch("/api/products?featured=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setFeatured(data.map(mapApiProduct));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="bg-background py-20">

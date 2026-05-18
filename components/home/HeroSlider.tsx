@@ -21,11 +21,22 @@ const defaultSlides: Slide[] = [
 
 const IMAGE_DURATION = 4000;
 
-export default function HeroSlider({ slides = defaultSlides }: { slides?: Slide[] }) {
+export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] }) {
+  const [slides, setSlides] = useState<Slide[]>(slidesProp || defaultSlides);
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (slidesProp) return;
+    fetch("/api/hero")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.slides?.length) setSlides(data.slides);
+      })
+      .catch(() => {});
+  }, [slidesProp]);
 
   const goTo = useCallback(
     (index: number) => {

@@ -1,11 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { products, searchProducts } from "@/data/products";
+import { products as staticProducts, searchProducts } from "@/data/products";
+import type { Product } from "@/data/products";
 import { CATEGORIES } from "@/data/categories";
 import ProductCard from "./ProductCard";
 import { Search } from "lucide-react";
+
+function mapApiProduct(p: Record<string, unknown>): Product {
+  return {
+    id: String(p._id),
+    name: String(p.name),
+    category: String(p.categoryName || p.category),
+    categorySlug: String(p.category),
+    description: String(p.description || ""),
+    image: String(p.image || ""),
+    price: String(p.price || "XXX"),
+    featured: Boolean(p.featured),
+  };
+}
 
 export default function ShopContent() {
   const searchParams = useSearchParams();
@@ -14,6 +28,19 @@ export default function ShopContent() {
     categoryParam ? [categoryParam] : []
   );
   const [query, setQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>(staticProducts);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data.map(mapApiProduct));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(() => {
     let result = products;
@@ -21,12 +48,16 @@ export default function ShopContent() {
       result = result.filter((p) => selected.includes(p.categorySlug));
     }
     if (query.trim()) {
-      const searched = searchProducts(query);
-      const ids = new Set(searched.map((p) => p.id));
-      result = result.filter((p) => ids.has(p.id));
+      const q = query.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      );
     }
     return result;
-  }, [selected, query]);
+  }, [selected, query, products]);
 
   const toggleCategory = (slug: string) => {
     setSelected((prev) =>
@@ -71,8 +102,10 @@ export default function ShopContent() {
       <main className="flex-1">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-muted">
-            <strong className="text-primary dark:text-foreground">{filtered.length}</strong> products
-            found
+            <strong className="text-primary dark:text-foreground">
+              {filtered.length}
+            </strong>{" "}
+            products found
           </p>
           <label className="relative max-w-sm flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -85,14 +118,18 @@ export default function ShopContent() {
             />
           </label>
         </header>
-        <ul className="flex flex-col gap-6">
-          {filtered.map((product) => (
-            <li key={product.id}>
-              <ProductCard product={product} />
-            </li>
-          ))}
-        </ul>
-        {filtered.length === 0 && (
+        {loading ? (
+          <p className="py-12 text-center text-muted">Loading products...</p>
+        ) : (
+          <ul className="flex flex-col gap-6">
+            {filtered.map((product) => (
+              <li key={product.id}>
+                <ProductCard product={product} />
+              </li>
+            ))}
+          </ul>
+        )}
+        {!loading && filtered.length === 0 && (
           <p className="py-12 text-center text-muted">
             No products match your filters.
           </p>
