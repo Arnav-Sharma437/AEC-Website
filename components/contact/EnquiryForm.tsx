@@ -3,6 +3,8 @@
 import { useState, FormEvent } from "react";
 import { CATEGORIES } from "@/data/categories";
 
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xeedqlyg";
+
 export default function EnquiryForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
@@ -13,15 +15,17 @@ export default function EnquiryForm() {
     e.preventDefault();
     setStatus("loading");
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
+    const formData = new FormData(form);
+    formData.set("_subject", "New AEC Website Enquiry");
 
     try {
-      const res = await fetch("/api/enquiries", {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: formData,
+        headers: { Accept: "application/json" },
       });
-      if (!res.ok) throw new Error("Failed");
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed");
       setStatus("success");
       setMessage("Thank you! We will contact you shortly.");
       form.reset();
@@ -32,7 +36,10 @@ export default function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm"
+    >
       <h3 className="font-display text-xl font-semibold text-primary dark:text-foreground">
         Send an Enquiry
       </h3>
