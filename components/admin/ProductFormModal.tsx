@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@/data/categories";
 import { uploadWithProgress } from "@/lib/admin-upload-client";
+import { resolveProductImage, PRODUCT_PLACEHOLDER } from "@/lib/products-api";
+import { normalizeStockFields } from "@/lib/product-stock";
 import UploadProgress from "./UploadProgress";
 import { useToast } from "./ToastProvider";
 
@@ -38,6 +41,9 @@ const empty: ProductFormData = {
   inStock: true,
 };
 
+const fieldClass =
+  "mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";
+
 export default function ProductFormModal({
   open,
   onClose,
@@ -46,20 +52,33 @@ export default function ProductFormModal({
   title,
 }: ProductFormModalProps) {
   const { toast } = useToast();
-  const [form, setForm] = useState<ProductFormData>(initial || empty);
+  const [form, setForm] = useState<ProductFormData>(empty);
+  const [imagePreview, setImagePreview] = useState("");
   const [uploadPercent, setUploadPercent] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open) setForm(initial || empty);
+    if (!open) return;
+    const next = initial || empty;
+    setForm(next);
+    setImagePreview(next.image ? resolveProductImage(next.image) : "");
   }, [open, initial]);
+
+  function updateStock(patch: { quantity?: number; inStock?: boolean }) {
+    const stock = normalizeStockFields(patch, {
+      quantity: form.quantity,
+      inStock: form.inStock,
+    });
+    setForm((f) => ({ ...f, ...stock }));
+  }
 
   if (!open) return null;
 
   async function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImagePreview(URL.createObjectURL(file));
     setUploading(true);
     setUploadPercent(0);
     try {
@@ -69,8 +88,10 @@ export default function ProductFormModal({
         image: data.url,
         imagePublicId: data.publicId,
       }));
+      setImagePreview(data.url);
       toast("Image uploaded");
     } catch (err) {
+      setImagePreview(form.image ? resolveProductImage(form.image) : "");
       toast(err instanceof Error ? err.message : "Image upload failed", "error");
     } finally {
       setUploading(false);
@@ -80,14 +101,21 @@ export default function ProductFormModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const stock = normalizeStockFields(
+      { quantity: form.quantity, inStock: form.inStock },
+      { quantity: form.quantity, inStock: form.inStock }
+    );
     setSaving(true);
-    const ok = await onSave(form);
+    const ok = await onSave({ ...form, ...stock });
     setSaving(false);
     if (ok) {
       toast(form._id ? "Product updated" : "Product created");
       onClose();
     }
   }
+
+  const previewSrc =
+    imagePreview || (form.image ? resolveProductImage(form.image) : PRODUCT_PLACEHOLDER);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -98,22 +126,22 @@ export default function ProductFormModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4 p-6">
-          <label className="block text-sm font-medium text-gray-700">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6">
+          <label className="block text-sm font-medium text-gray-800">
             Name *
             <input
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              className={fieldClass}
             />
           </label>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-800">
             Category *
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className={fieldClass}
             >
               {CATEGORIES.map((c) => (
                 <option key={c.slug} value={c.slug}>
@@ -122,25 +150,25 @@ export default function ProductFormModal({
               ))}
             </select>
           </label>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-800">
             Description
             <textarea
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className={fieldClass}
             />
           </label>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-800">
             Price
             <input
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              className={fieldClass}
             />
           </label>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-800">
               Product image
               <input
                 type="file"
@@ -151,35 +179,35 @@ export default function ProductFormModal({
               />
             </label>
             {uploading && <UploadProgress percent={uploadPercent} />}
-            {form.image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={form.image}
-                alt="Preview"
-                className="mt-2 h-28 w-28 rounded-lg border object-cover"
-              />
-            )}
+            <Image
+              src={previewSrc}
+              alt="Preview"
+              width={280}
+              height={200}
+              className="mt-3 max-h-48 w-full rounded-lg border border-gray-200 object-contain bg-gray-50"
+              unoptimized
+              onError={() => setImagePreview(PRODUCT_PLACEHOLDER)}
+            />
+            <p className="mt-1 text-xs text-gray-500">Current image preview</p>
           </div>
-          <label className="block text-sm font-medium text-gray-700">
-            Quantity
+          <label className="block text-sm font-medium text-gray-800">
+            Quantity (stock count)
             <input
               type="number"
               min={0}
               value={form.quantity}
-              onChange={(e) =>
-                setForm({ ...form, quantity: Number(e.target.value) })
-              }
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              onChange={(e) => updateStock({ quantity: Number(e.target.value) })}
+              className={fieldClass}
             />
           </label>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-800">
             <input
               type="checkbox"
               checked={form.inStock}
-              onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
-              className="rounded"
+              onChange={(e) => updateStock({ inStock: e.target.checked })}
+              className="h-4 w-4 rounded border-gray-300 accent-accent"
             />
-            In Stock
+            In Stock (hidden on shop when off or qty is 0)
           </label>
           <div className="flex gap-3 border-t pt-4">
             <button

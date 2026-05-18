@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
+import { PUBLIC_PRODUCT_FILTER } from "@/lib/product-stock";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { ...PUBLIC_PRODUCT_FILTER };
     if (category) filter.category = category;
     if (featured === "true") filter.featured = true;
     if (search) {

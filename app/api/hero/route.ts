@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { HeroSettings } from "@/models/HeroSettings";
+import { heroToSlides, normalizeHeroDoc } from "@/lib/hero-utils";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const defaults = [
   { type: "video" as const, src: "/hero/hero-video.mp4" },
@@ -15,23 +19,23 @@ export async function GET() {
     const hero = await HeroSettings.findOne({ key: "main" }).lean();
 
     if (!hero) {
-      return NextResponse.json({ slides: defaults });
+      return NextResponse.json(
+        { slides: defaults },
+        { headers: { "Cache-Control": "no-store, max-age=0" } }
+      );
     }
 
-    const slides = [];
-    if (hero.video?.url) {
-      slides.push({ type: "video", src: hero.video.url });
-    }
-    for (const img of [hero.image1, hero.image2, hero.image3]) {
-      if (img?.url) slides.push({ type: "image", src: img.url });
-    }
+    const normalized = normalizeHeroDoc(hero as Record<string, unknown>);
+    const slides = heroToSlides(normalized);
 
-    if (slides.length === 0) {
-      return NextResponse.json({ slides: defaults });
-    }
-
-    return NextResponse.json({ slides });
+    return NextResponse.json(
+      { slides: slides.length > 0 ? slides : defaults },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   } catch {
-    return NextResponse.json({ slides: defaults });
+    return NextResponse.json(
+      { slides: defaults },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   }
 }

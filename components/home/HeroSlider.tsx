@@ -21,6 +21,13 @@ const defaultSlides: Slide[] = [
 
 const IMAGE_DURATION = 4000;
 
+async function fetchHeroSlides(): Promise<Slide[]> {
+  const res = await fetch(`/api/hero?t=${Date.now()}`, { cache: "no-store" });
+  const data = await res.json();
+  if (data.slides?.length) return data.slides;
+  return defaultSlides;
+}
+
 export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] }) {
   const [slides, setSlides] = useState<Slide[]>(slidesProp || defaultSlides);
   const [current, setCurrent] = useState(0);
@@ -30,12 +37,18 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
 
   useEffect(() => {
     if (slidesProp) return;
-    fetch("/api/hero")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.slides?.length) setSlides(data.slides);
-      })
-      .catch(() => {});
+
+    fetchHeroSlides().then(setSlides).catch(() => {});
+
+    const onFocus = () => {
+      fetchHeroSlides().then((next) => {
+        setSlides(next);
+        setCurrent(0);
+        setProgress(0);
+      });
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, [slidesProp]);
 
   const goTo = useCallback(
@@ -51,6 +64,7 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
   useEffect(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     const slide = slides[current];
+    if (!slide) return;
 
     if (slide.type === "image") {
       const start = Date.now();
@@ -66,20 +80,26 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
     };
   }, [current, slides, next]);
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || slides[current]?.type !== "video") return;
+    v.load();
+    v.play().catch(() => {});
+  }, [current, slides]);
+
   const handleVideoEnded = () => next();
+
+  if (slides.length === 0) return null;
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-primary">
       <div className="absolute left-0 right-0 top-0 z-20 h-1 bg-white/20">
-        <div
-          className="h-full bg-accent transition-all duration-100"
-          style={{ width: `${progress}%` }}
-        />
+                <div className="h-full bg-accent transition-all duration-100" style={{ width: `${progress}%` }} />
       </div>
 
       <AnimatePresence mode="wait">
         <motion.section
-          key={current}
+          key={`${current}-${slides[current]?.src}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -89,6 +109,7 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
           {slides[current].type === "video" ? (
             <video
               ref={videoRef}
+              key={slides[current].src}
               src={slides[current].src}
               autoPlay
               muted
@@ -101,11 +122,11 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
               className="h-full w-full object-cover"
             />
           ) : (
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${slides[current].src}), linear-gradient(135deg, #1C2B3A 0%, #2E3F52 100%)`,
-              }}
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={slides[current].src}
+              alt=""
+              className="h-full w-full object-cover"
             />
           )}
         </motion.section>
@@ -149,7 +170,7 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
       <button
         type="button"
         onClick={() => goTo(current - 1)}
-        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white opacity-0 backdrop-blur transition hover:bg-white/20 group-hover:opacity-100 lg:opacity-100"
+        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white backdrop-blur transition hover:bg-white/20"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-6 w-6" />
@@ -179,3 +200,4 @@ export default function HeroSlider({ slides: slidesProp }: { slides?: Slide[] })
     </section>
   );
 }
+

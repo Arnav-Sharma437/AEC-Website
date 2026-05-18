@@ -4,6 +4,7 @@ import { Product } from "@/models/Product";
 import { requireAdminSession } from "@/lib/admin-api";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { CATEGORIES } from "@/data/categories";
+import { normalizeStockFields } from "@/lib/product-stock";
 
 type Params = { params: { id: string } };
 
@@ -27,6 +28,16 @@ export async function PUT(request: Request, { params }: Params) {
     const body = await request.json();
     await connectDB();
 
+    const existing = await Product.findById(params.id);
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const stock = normalizeStockFields(
+      { quantity: body.quantity, inStock: body.inStock },
+      { quantity: existing.quantity, inStock: existing.inStock }
+    );
+
     const category = CATEGORIES.find((c) => c.slug === body.category);
     const product = await Product.findByIdAndUpdate(
       params.id,
@@ -38,8 +49,8 @@ export async function PUT(request: Request, { params }: Params) {
         image: body.image,
         imagePublicId: body.imagePublicId,
         price: body.price,
-        inStock: body.inStock,
-        quantity: body.quantity,
+        inStock: stock.inStock,
+        quantity: stock.quantity,
         featured: body.featured,
       },
       { new: true }
@@ -62,7 +73,25 @@ export async function PATCH(request: Request, { params }: Params) {
   try {
     const body = await request.json();
     await connectDB();
-    const product = await Product.findByIdAndUpdate(params.id, body, {
+    const existing = await Product.findById(params.id);
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const update = { ...body } as Record<string, unknown>;
+    if ("quantity" in body || "inStock" in body) {
+      const stock = normalizeStockFields(
+        {
+          quantity: body.quantity as number | undefined,
+          inStock: body.inStock as boolean | undefined,
+        },
+        { quantity: existing.quantity, inStock: existing.inStock }
+      );
+      update.quantity = stock.quantity;
+      update.inStock = stock.inStock;
+    }
+
+    const product = await Product.findByIdAndUpdate(params.id, update, {
       new: true,
     });
     if (!product) {

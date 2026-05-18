@@ -4,6 +4,7 @@ import { Product } from "@/models/Product";
 import { requireAdminSession } from "@/lib/admin-api";
 import { slugify } from "@/lib/slug";
 import { CATEGORIES } from "@/data/categories";
+import { normalizeStockFields } from "@/lib/product-stock";
 
 export async function GET(request: NextRequest) {
   const { error } = await requireAdminSession();
@@ -64,6 +65,11 @@ export async function POST(request: Request) {
     const existing = await Product.findOne({ slug });
     if (existing) slug = `${slug}-${Date.now()}`;
 
+    const stock = normalizeStockFields({
+      quantity: body.quantity ?? 0,
+      inStock: body.inStock ?? true,
+    });
+
     const product = await Product.create({
       name: body.name,
       slug,
@@ -73,8 +79,8 @@ export async function POST(request: Request) {
       image: body.image || "",
       imagePublicId: body.imagePublicId || "",
       price: body.price || "XXX",
-      inStock: body.inStock ?? true,
-      quantity: body.quantity ?? 0,
+      inStock: stock.inStock,
+      quantity: stock.quantity,
       featured: body.featured ?? false,
     });
 

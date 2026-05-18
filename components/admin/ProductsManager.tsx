@@ -16,7 +16,10 @@ import {
   Loader2,
   Zap,
   Filter,
+  Check,
+  X,
 } from "lucide-react";
+import { normalizeStockFields } from "@/lib/product-stock";
 import { CATEGORIES } from "@/data/categories";
 import { resolveProductImage, PRODUCT_PLACEHOLDER } from "@/lib/products-api";
 import ProductFormModal, { ProductFormData } from "./ProductFormModal";
@@ -63,6 +66,12 @@ export default function ProductsManager() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [viewProduct, setViewProduct] = useState<Product | null>(null);
   const [quickEditRow, setQuickEditRow] = useState<string | null>(null);
+  const [quickEditDraft, setQuickEditDraft] = useState<{
+    name: string;
+    price: string;
+    quantity: number;
+    inStock: boolean;
+  } | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -115,23 +124,82 @@ export default function ProductsManager() {
 
   async function patchProduct(id: string, body: Record<string, unknown>) {
     const prev = products;
-    setProducts((list) =>
-      list.map((p) => (p._id === id ? { ...p, ...body } as Product : p))
-    );
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Update failed");
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Update failed");
+      setProducts((list) =>
+        list.map((p) =>
+          p._id === id
+            ? {
+                ...p,
+                name: data.name ?? p.name,
+                price: data.price ?? p.price,
+                quantity: data.quantity ?? p.quantity,
+                inStock: data.inStock ?? p.inStock,
+                categoryName: data.categoryName ?? p.categoryName,
+              }
+            : p
+        )
+      );
       toast("Saved");
+      return data;
     } catch (err) {
       setProducts(prev);
       toast(err instanceof Error ? err.message : "Update failed", "error");
+      return null;
+    }
+  }
+
+  function startQuickEdit(p: Product) {
+    setQuickEditRow(p._id);
+    setQuickEditDraft({
+      name: p.name,
+      price: p.price,
+      quantity: p.quantity,
+      inStock: p.inStock,
+    });
+  }
+
+  function cancelQuickEdit() {
+    setQuickEditRow(null);
+    setQuickEditDraft(null);
+  }
+
+  async function saveQuickEdit(id: string) {
+    if (!quickEditDraft) return;
+    setActionLoading(`save-${id}`);
+    const stock = normalizeStockFields(
+      { quantity: quickEditDraft.quantity, inStock: quickEditDraft.inStock },
+      { quantity: quickEditDraft.quantity, inStock: quickEditDraft.inStock }
+    );
+    const ok = await patchProduct(id, {
+      name: quickEditDraft.name,
+      price: quickEditDraft.price,
+      quantity: stock.quantity,
+      inStock: stock.inStock,
+    });
+    setActionLoading(null);
+    if (ok) {
+      cancelQuickEdit();
+    }
+  }
+
+  function updateQuickDraft(patch: Partial<NonNullable<typeof quickEditDraft>>) {
+    if (!quickEditDraft) return;
+    const next = { ...quickEditDraft, ...patch };
+    if ("quantity" in patch || "inStock" in patch) {
+      const stock = normalizeStockFields(
+        { quantity: next.quantity, inStock: next.inStock },
+        { quantity: next.quantity, inStock: next.inStock }
+      );
+      setQuickEditDraft({ ...next, ...stock });
+    } else {
+      setQuickEditDraft(next);
     }
   }
 
@@ -319,7 +387,11 @@ export default function ProductsManager() {
                   {products.map((p) => (
                     <tr
                       key={p._id}
-                      className="transition-colors hover:bg-slate-50/80"
+                      className={`transition-colors ${
+                        quickEditRow === p._id
+                          ? "bg-amber-50/80 ring-1 ring-inset ring-amber-200"
+                          : "hover:bg-slate-50/80"
+                      }`}
                     >
                       <td className="px-5 py-4">
                         <Image
@@ -335,20 +407,11 @@ export default function ProductsManager() {
                         />
                       </td>
                       <td className="max-w-[220px] px-5 py-4 font-medium text-slate-900">
-                        {quickEditRow === p._id ? (
+                        {quickEditRow === p._id && quickEditDraft ? (
                           <input
-                            defaultValue={p.name}
-                            className="w-full rounded border px-2 py-1"
-                            onBlur={(e) => {
-                              if (e.target.value !== p.name) {
-                                patchProduct(p._id, { name: e.target.value });
-                              }
-                              setQuickEditRow(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                              if (e.key === "Escape") setQuickEditRow(null);
-                            }}
+                            value={quickEditDraft.name}
+                            onChange={(e) => updateQuickDraft({ name: e.target.value })}
+                            className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900"
                             autoFocus
                           />
                         ) : (
@@ -357,58 +420,98 @@ export default function ProductsManager() {
                       </td>
                       <td className="px-5 py-4 text-slate-600">{p.categoryName}</td>
                       <td className="px-5 py-4 font-medium text-slate-800">
-                        {quickEditRow === p._id ? (
+                        {quickEditRow === p._id && quickEditDraft ? (
                           <input
-                            defaultValue={p.price}
-                            className="w-24 rounded border px-2 py-1"
-                            onBlur={(e) => {
-                              if (e.target.value !== p.price) {
-                                patchProduct(p._id, { price: e.target.value });
-                              }
-                              setQuickEditRow(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                              if (e.key === "Escape") setQuickEditRow(null);
-                            }}
-                            autoFocus
+                            value={quickEditDraft.price}
+                            onChange={(e) => updateQuickDraft({ price: e.target.value })}
+                            className="w-24 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900"
                           />
                         ) : (
                           `₹ ${p.price}`
                         )}
                       </td>
                       <td className="px-5 py-4">
-                        <StockPillToggle
-                          inStock={p.inStock}
-                          disabled={actionLoading === `stock-${p._id}`}
-                          onToggle={async () => {
-                            setActionLoading(`stock-${p._id}`);
-                            await patchProduct(p._id, { inStock: !p.inStock });
-                            setActionLoading(null);
-                          }}
-                        />
+                        {quickEditRow === p._id && quickEditDraft ? (
+                          <StockPillToggle
+                            inStock={quickEditDraft.inStock}
+                            onToggle={() =>
+                              updateQuickDraft({ inStock: !quickEditDraft.inStock })
+                            }
+                          />
+                        ) : (
+                          <StockPillToggle
+                            inStock={p.inStock}
+                            disabled={actionLoading === `stock-${p._id}`}
+                            onToggle={async () => {
+                              setActionLoading(`stock-${p._id}`);
+                              const stock = normalizeStockFields(
+                                { inStock: !p.inStock },
+                                { quantity: p.quantity, inStock: p.inStock }
+                              );
+                              await patchProduct(p._id, stock);
+                              setActionLoading(null);
+                            }}
+                          />
+                        )}
                       </td>
                       <td className="px-5 py-4">
-                        <input
-                          type="number"
-                          min={0}
-                          key={`${p._id}-${p.quantity}`}
-                          defaultValue={p.quantity}
-                          className="w-16 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-center text-sm text-slate-800 focus:border-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-accent"
-                          onBlur={(e) => {
-                            const qty = Number(e.target.value);
-                            if (qty !== p.quantity) patchProduct(p._id, { quantity: qty });
-                          }}
-                        />
+                        {quickEditRow === p._id && quickEditDraft ? (
+                          <input
+                            type="number"
+                            min={0}
+                            value={quickEditDraft.quantity}
+                            onChange={(e) =>
+                              updateQuickDraft({ quantity: Number(e.target.value) })
+                            }
+                            className="w-16 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-center text-sm text-slate-900"
+                          />
+                        ) : (
+                          <input
+                            type="number"
+                            min={0}
+                            key={`${p._id}-${p.quantity}`}
+                            defaultValue={p.quantity}
+                            className="w-16 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 text-center text-sm text-slate-800 focus:border-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-accent"
+                            onBlur={(e) => {
+                              const qty = Number(e.target.value);
+                              if (qty !== p.quantity) {
+                                const stock = normalizeStockFields(
+                                  { quantity: qty },
+                                  { quantity: p.quantity, inStock: p.inStock }
+                                );
+                                patchProduct(p._id, stock);
+                              }
+                            }}
+                          />
+                        )}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap items-center gap-1.5">
+                          {quickEditRow === p._id ? (
+                            <>
+                              <IconTooltipButton
+                                label="Save"
+                                disabled={actionLoading === `save-${p._id}`}
+                                onClick={() => saveQuickEdit(p._id)}
+                              >
+                                {actionLoading === `save-${p._id}` ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Check className="h-4 w-4 text-green-600" />
+                                )}
+                              </IconTooltipButton>
+                              <IconTooltipButton label="Cancel" onClick={cancelQuickEdit}>
+                                <X className="h-4 w-4" />
+                              </IconTooltipButton>
+                            </>
+                          ) : (
+                            <>
                           <IconTooltipButton label="Edit" onClick={() => openEdit(p)}>
                             <Pencil className="h-4 w-4" />
                           </IconTooltipButton>
                           <IconTooltipButton
                             label="Quick Edit"
-                            onClick={() => setQuickEditRow(p._id)}
+                            onClick={() => startQuickEdit(p)}
                           >
                             <Zap className="h-4 w-4" />
                           </IconTooltipButton>
@@ -433,6 +536,8 @@ export default function ProductsManager() {
                           >
                             <Trash2 className="h-4 w-4" />
                           </IconTooltipButton>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -471,6 +576,7 @@ export default function ProductsManager() {
       </section>
 
       <ProductFormModal
+        key={editProduct?._id ?? "new-product"}
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
