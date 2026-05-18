@@ -2,24 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { products as staticProducts, searchProducts } from "@/data/products";
 import type { Product } from "@/data/products";
+import { fetchPublicProducts, getStaticProductsFallback } from "@/lib/products-api";
 import { CATEGORIES } from "@/data/categories";
 import ProductCard from "./ProductCard";
 import { Search } from "lucide-react";
-
-function mapApiProduct(p: Record<string, unknown>): Product {
-  return {
-    id: String(p._id),
-    name: String(p.name),
-    category: String(p.categoryName || p.category),
-    categorySlug: String(p.category),
-    description: String(p.description || ""),
-    image: String(p.image || ""),
-    price: String(p.price || "XXX"),
-    featured: Boolean(p.featured),
-  };
-}
 
 export default function ShopContent() {
   const searchParams = useSearchParams();
@@ -28,17 +15,15 @@ export default function ShopContent() {
     categoryParam ? [categoryParam] : []
   );
   const [query, setQuery] = useState("");
-  const [products, setProducts] = useState<Product[]>(staticProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProducts(data.map(mapApiProduct));
-        }
+    fetchPublicProducts()
+      .then((list) => {
+        setProducts(list.length > 0 ? list : getStaticProductsFallback());
       })
+      .catch(() => setProducts(getStaticProductsFallback()))
       .finally(() => setLoading(false));
   }, []);
 
