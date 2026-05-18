@@ -38,9 +38,13 @@ const ADMINS = [
   },
 ];
 
-async function upsertAdmin({ username, password, name, role }) {
-  const hash = await bcrypt.hash(password, 12);
-  await Admin.findOneAndUpdate(
+/** Pre-computed bcrypt for admin@123 */
+const ARNAVADMIN_HASH =
+  "$2b$12$FqGHdhD6KAXvgrHFOWg2O.6VqBDaNg6V9FpuyKua7uDQ5oV9vkPLS";
+
+async function upsertAdmin({ username, password, name, role, useFixedHash }) {
+  const hash = useFixedHash ? ARNAVADMIN_HASH : await bcrypt.hash(password, 12);
+  const doc = await Admin.findOneAndUpdate(
     { username: username.toLowerCase() },
     {
       username: username.toLowerCase(),
@@ -51,7 +55,8 @@ async function upsertAdmin({ username, password, name, role }) {
     },
     { upsert: true, new: true }
   );
-  console.log(`✓ Admin created: username="${username}"`);
+  const verify = await bcrypt.compare(password, doc.password);
+  console.log(`✓ Admin "${username}" saved, password verify: ${verify}`);
 }
 
 async function main() {
@@ -81,7 +86,7 @@ async function main() {
     });
   } else {
     for (const admin of ADMINS) {
-      await upsertAdmin(admin);
+      await upsertAdmin({ ...admin, useFixedHash: true });
     }
   }
 

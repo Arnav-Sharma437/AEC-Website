@@ -16,13 +16,16 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     const res = await signIn("credentials", {
-      email: username,
+      email: username.trim().toLowerCase(),
       password,
       redirect: false,
     });
     setLoading(false);
     if (res?.error) {
-      setError("Invalid username or password");
+      console.error("[Admin Login] signIn failed:", res.error);
+      setError(
+        "Invalid username or password. Visit /api/admin/check to verify the admin exists in the database."
+      );
       return;
     }
     router.push("/admin");

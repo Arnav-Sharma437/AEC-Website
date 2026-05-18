@@ -13,32 +13,77 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const log = (msg: string, data?: unknown) =>
+          console.error("[Admin Auth]", msg, data ?? "");
 
-        await connectDB();
-        const login = credentials.email.trim().toLowerCase();
-        const admin = await Admin.findOne({
-          $or: [{ username: login }, { email: login }],
-        });
-        if (!admin) return null;
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            log("Missing username or password");
+            return null;
+          }
 
-        const valid = await bcrypt.compare(
-          credentials.password,
-          admin.password
-        );
-        if (!valid) return null;
+          if (!process.env.NEXTAUTH_SECRET) {
+            log("NEXTAUTH_SECRET is not set");
+            return null;
+          }
 
-        return {
-          id: admin._id.toString(),
-          email: admin.username,
-          name: admin.name || admin.username,
-        };
+          if (!process.env.MONGODB_URI?.trim()) {
+            log("MONGODB_URI is not set");
+            return null;
+          }
+
+          await connectDB();
+          const login = credentials.email.trim().toLowerCase();
+          const password = credentials.password;
+
+          log("Login attempt for:", login);
+
+          const admin = await Admin.findOne({
+            $or: [{ username: login }, { email: login }],
+          }).lean();
+
+          if (!admin) {
+            log("No admin found for username/email:", login);
+            const count = await Admin.countDocuments();
+            log("Total admins in DB:", count);
+            return null;
+          }
+
+          log("Admin found:", {
+            id: admin._id,
+            username: admin.username,
+            hasPassword: Boolean(admin.password),
+            hashPrefix: admin.password?.substring(0, 7),
+          });
+
+          if (!admin.password?.startsWith("$2")) {
+            log("Password field is not a bcrypt hash");
+            return null;
+          }
+
+          const valid = await bcrypt.compare(password, admin.password);
+          log("bcrypt.compare result:", valid);
+
+          if (!valid) {
+            return null;
+          }
+
+          return {
+            id: admin._id.toString(),
+            email: admin.username || login,
+            name: admin.name || admin.username || login,
+          };
+        } catch (error) {
+          log("authorize() error:", error);
+          return null;
+        }
       },
     }),
   ],
   session: { strategy: "jwt" },
   pages: { signIn: "/admin/login" },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -53,4 +98,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  debug: process.env.NODE_ENV === "development",
 };
