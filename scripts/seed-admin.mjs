@@ -56,7 +56,12 @@ async function upsertAdmin({ username, password, name, role }) {
 
 async function main() {
   if (!process.env.MONGODB_URI) {
-    console.error("MONGODB_URI not set in .env.local");
+    loadEnv();
+  }
+  if (!process.env.MONGODB_URI?.trim()) {
+    console.error(
+      "MONGODB_URI is missing or empty. Add your MongoDB Atlas connection string in Vercel → Settings → Environment Variables (Production)."
+    );
     process.exit(1);
   }
 
