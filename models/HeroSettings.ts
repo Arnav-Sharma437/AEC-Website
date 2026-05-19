@@ -4,6 +4,10 @@ const AssetSchema = new Schema(
   {
     url: { type: String, default: "" },
     publicId: { type: String, default: "" },
+    heading: { type: String, default: "" },
+    subheading: { type: String, default: "" },
+    buttonText: { type: String, default: "" },
+    buttonLink: { type: String, default: "" },
   },
   { _id: false }
 );

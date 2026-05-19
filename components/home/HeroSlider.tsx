@@ -1,25 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Slide {
-  type: "video" | "image";
-  src: string;
-}
+import type { HeroSlide } from "@/lib/hero-utils";
 
 const IMAGE_DURATION = 4000;
 const EMPTY_BG = "bg-[#0a0f14]";
 
-async function fetchHeroSlides(): Promise<Slide[]> {
+async function fetchHeroSlides(): Promise<HeroSlide[]> {
   try {
     const res = await fetch(`/api/hero?t=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) return [];
     const data = await res.json();
     if (!Array.isArray(data.slides)) return [];
     return data.slides.filter(
-      (s: Slide) =>
+      (s: HeroSlide) =>
         s &&
         typeof s.src === "string" &&
         s.src.trim().length > 0 &&
@@ -30,8 +27,30 @@ async function fetchHeroSlides(): Promise<Slide[]> {
   }
 }
 
+function HeroCta({ text, link }: { text: string; link: string }) {
+  const href = link || "/shop";
+  const isExternal = /^https?:\/\//i.test(href);
+
+  const className =
+    "inline-flex items-center justify-center rounded-md bg-accent px-6 py-3 font-display text-sm font-semibold uppercase tracking-wide text-primary transition hover:brightness-105";
+
+  if (isExternal) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {text}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {text}
+    </Link>
+  );
+}
+
 export default function HeroSlider() {
-  const [slides, setSlides] = useState<Slide[]>([]);
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -90,12 +109,7 @@ export default function HeroSlider() {
   }, [current, slides]);
 
   if (!ready) {
-    return (
-      <section
-        className={`relative h-screen w-full ${EMPTY_BG}`}
-        aria-hidden
-      />
-    );
+    return <section className={`relative h-screen w-full ${EMPTY_BG}`} aria-hidden />;
   }
 
   if (slides.length === 0) {
@@ -108,6 +122,7 @@ export default function HeroSlider() {
   }
 
   const slide = slides[current];
+  const hasCopy = Boolean(slide.heading || slide.subheading || slide.buttonText);
 
   return (
     <section className={`relative h-screen w-full overflow-hidden ${EMPTY_BG}`}>
@@ -144,14 +159,51 @@ export default function HeroSlider() {
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={slide.src}
-              alt=""
-              className="h-full w-full object-cover"
-            />
+            <img src={slide.src} alt="" className="h-full w-full object-cover" />
           )}
         </motion.div>
       </AnimatePresence>
+
+      {hasCopy && (
+        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
+      )}
+
+      {hasCopy && (
+        <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-24 pt-32 lg:px-16 lg:pb-32">
+          {slide.heading && (
+            <motion.h1
+              key={`h-${current}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-3 max-w-3xl font-display text-3xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl"
+            >
+              {slide.heading}
+            </motion.h1>
+          )}
+          {slide.subheading && (
+            <motion.p
+              key={`s-${current}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className="mb-8 max-w-xl text-base text-white/90 md:text-lg"
+            >
+              {slide.subheading}
+            </motion.p>
+          )}
+          {slide.buttonText && (
+            <motion.div
+              key={`b-${current}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16 }}
+              className="pointer-events-auto"
+            >
+              <HeroCta text={slide.buttonText} link={slide.buttonLink} />
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {slides.length > 1 && (
         <>

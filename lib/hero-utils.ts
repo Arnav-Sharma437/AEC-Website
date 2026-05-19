@@ -3,6 +3,10 @@ export type HeroSlot = "video" | "image1" | "image2" | "image3";
 export interface HeroAsset {
   url: string;
   publicId: string;
+  heading: string;
+  subheading: string;
+  buttonText: string;
+  buttonLink: string;
 }
 
 export interface HeroData {
@@ -12,14 +16,30 @@ export interface HeroData {
   image3: HeroAsset;
 }
 
-export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData {
-  const slot = (key: HeroSlot): HeroAsset => {
-    const raw = doc?.[key] as { url?: string; publicId?: string } | undefined;
-    return {
-      url: raw?.url?.trim() || "",
-      publicId: raw?.publicId?.trim() || "",
-    };
+export interface HeroSlide {
+  type: "video" | "image";
+  src: string;
+  heading: string;
+  subheading: string;
+  buttonText: string;
+  buttonLink: string;
+}
+
+function parseAsset(raw: Record<string, unknown> | undefined): HeroAsset {
+  return {
+    url: String(raw?.url ?? "").trim(),
+    publicId: String(raw?.publicId ?? "").trim(),
+    heading: String(raw?.heading ?? "").trim(),
+    subheading: String(raw?.subheading ?? "").trim(),
+    buttonText: String(raw?.buttonText ?? "").trim(),
+    buttonLink: String(raw?.buttonLink ?? "").trim(),
   };
+}
+
+export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData {
+  const slot = (key: HeroSlot): HeroAsset =>
+    parseAsset(doc?.[key] as Record<string, unknown> | undefined);
+
   return {
     video: slot("video"),
     image1: slot("image1"),
@@ -28,11 +48,37 @@ export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData 
   };
 }
 
-export function heroToSlides(hero: HeroData) {
-  const slides: { type: "video" | "image"; src: string }[] = [];
-  if (hero.video.url) slides.push({ type: "video", src: hero.video.url });
+export function assetToSlide(
+  type: "video" | "image",
+  asset: HeroAsset
+): HeroSlide | null {
+  if (!asset.url) return null;
+  return {
+    type,
+    src: asset.url,
+    heading: asset.heading,
+    subheading: asset.subheading,
+    buttonText: asset.buttonText,
+    buttonLink: asset.buttonLink,
+  };
+}
+
+export function heroToSlides(hero: HeroData): HeroSlide[] {
+  const slides: HeroSlide[] = [];
+  const video = assetToSlide("video", hero.video);
+  if (video) slides.push(video);
   for (const img of [hero.image1, hero.image2, hero.image3]) {
-    if (img.url) slides.push({ type: "image", src: img.url });
+    const slide = assetToSlide("image", img);
+    if (slide) slides.push(slide);
   }
   return slides;
 }
+
+export const EMPTY_HERO_ASSET: HeroAsset = {
+  url: "",
+  publicId: "",
+  heading: "",
+  subheading: "",
+  buttonText: "",
+  buttonLink: "",
+};

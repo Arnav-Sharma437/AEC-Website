@@ -3,7 +3,12 @@ import { connectDB } from "@/lib/mongodb";
 import { HeroSettings } from "@/models/HeroSettings";
 import { requireAdminSession } from "@/lib/admin-api";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
-import { normalizeHeroDoc, type HeroSlot } from "@/lib/hero-utils";
+import {
+  normalizeHeroDoc,
+  EMPTY_HERO_ASSET,
+  type HeroSlot,
+  type HeroAsset,
+} from "@/lib/hero-utils";
 
 async function getOrCreateHero() {
   await connectDB();
@@ -12,6 +17,18 @@ async function getOrCreateHero() {
     hero = await HeroSettings.create({ key: "main" });
   }
   return hero;
+}
+
+function copyFields(body: Record<string, unknown>) {
+  return {
+    heading: typeof body.heading === "string" ? body.heading.trim() : undefined,
+    subheading:
+      typeof body.subheading === "string" ? body.subheading.trim() : undefined,
+    buttonText:
+      typeof body.buttonText === "string" ? body.buttonText.trim() : undefined,
+    buttonLink:
+      typeof body.buttonLink === "string" ? body.buttonLink.trim() : undefined,
+  };
 }
 
 export async function GET() {
@@ -47,7 +64,10 @@ export async function PUT(request: NextRequest) {
 
     await connectDB();
     const hero = await getOrCreateHero();
-    const current = normalizeHeroDoc(hero.toObject() as Record<string, unknown>)[slot];
+    const current = normalizeHeroDoc(hero.toObject() as Record<string, unknown>)[
+      slot
+    ];
+    const copy = copyFields(body);
 
     if (action === "delete") {
       if (current.publicId) {
@@ -56,18 +76,38 @@ export async function PUT(request: NextRequest) {
           slot === "video" ? "video" : "image"
         );
       }
-      hero.set(slot, { url: "", publicId: "" });
-    } else {
-      if (!url?.trim()) {
-        return NextResponse.json({ error: "URL is required" }, { status: 400 });
-      }
-      if (current.publicId && publicId && publicId !== current.publicId) {
+      hero.set(slot, { ...EMPTY_HERO_ASSET });
+    } else if (url?.trim() && publicId?.trim()) {
+      if (current.publicId && publicId !== current.publicId) {
         await deleteFromCloudinary(
           current.publicId,
           slot === "video" ? "video" : "image"
         );
       }
-      hero.set(slot, { url: url.trim(), publicId: publicId?.trim() || "" });
+      const next: HeroAsset = {
+        url: url.trim(),
+        publicId: publicId.trim(),
+        heading: copy.heading ?? current.heading,
+        subheading: copy.subheading ?? current.subheading,
+        buttonText: copy.buttonText ?? current.buttonText,
+        buttonLink: copy.buttonLink ?? current.buttonLink,
+      };
+      hero.set(slot, next);
+    } else {
+      const next: HeroAsset = {
+        ...current,
+        heading: copy.heading ?? current.heading,
+        subheading: copy.subheading ?? current.subheading,
+        buttonText: copy.buttonText ?? current.buttonText,
+        buttonLink: copy.buttonLink ?? current.buttonLink,
+      };
+      if (!next.url) {
+        return NextResponse.json(
+          { error: "Upload media before saving slide text" },
+          { status: 400 }
+        );
+      }
+      hero.set(slot, next);
     }
 
     hero.markModified(slot);

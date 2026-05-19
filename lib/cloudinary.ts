@@ -18,6 +18,41 @@ function ensureConfig() {
 
 export { cloudinary };
 
+export function getCloudinaryCredentials() {
+  ensureConfig();
+  return {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+    apiKey: process.env.CLOUDINARY_API_KEY!,
+  };
+}
+
+/** Signed params for direct browser → Cloudinary uploads (bypasses Vercel body limits). */
+export function getSignedUploadParams(
+  folder: string,
+  resourceType: "image" | "video"
+) {
+  ensureConfig();
+  const timestamp = Math.round(Date.now() / 1000);
+  const cloudFolder = `aec/${folder}`;
+  const paramsToSign: Record<string, string | number> = {
+    timestamp,
+    folder: cloudFolder,
+  };
+
+  const signature = cloudinary.utils.api_sign_request(
+    paramsToSign,
+    process.env.CLOUDINARY_API_SECRET!
+  );
+
+  return {
+    ...getCloudinaryCredentials(),
+    timestamp,
+    signature,
+    folder: cloudFolder,
+    resourceType,
+  };
+}
+
 export async function uploadToCloudinary(
   buffer: Buffer,
   mimeType: string,
