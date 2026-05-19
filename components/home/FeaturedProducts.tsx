@@ -36,7 +36,7 @@ export default function FeaturedProducts() {
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((product) => (
               <li key={product.id}>
-                <ProductCard product={product} compact />
+                <ProductCard product={product} variant="grid" />
               </li>
             ))}
           </ul>

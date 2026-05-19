@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   Package,
   ImageIcon,
-  LogOut,
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -45,8 +43,8 @@ export default function AdminSidebar({
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition",
                 active
-                  ? "border-l-[3px] border-accent bg-white/10 pl-[9px] text-white"
-                  : "border-l-[3px] border-transparent pl-[9px] hover:bg-white/5 hover:text-white"
+                  ? "border-l-[3px] border-accent bg-accent/15 pl-[9px] font-semibold text-accent"
+                  : "border-l-[3px] border-transparent pl-[9px] text-slate-400 hover:bg-white/5 hover:text-white"
               )}
             >
               <Icon
@@ -67,14 +65,6 @@ export default function AdminSidebar({
           <ExternalLink className="h-5 w-5 shrink-0" />
           View Website
         </Link>
-        <button
-          type="button"
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
-        >
-          <LogOut className="h-5 w-5 shrink-0" />
-          Sign Out
-        </button>
       </div>
     </aside>
   );

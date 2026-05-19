@@ -4,53 +4,39 @@ import ProductImage from "./ProductImage";
 
 interface ProductCardProps {
   product: Product;
-  compact?: boolean;
+  /** Grid card for shop & featured sections */
+  variant?: "grid";
 }
 
-export default function ProductCard({ product, compact }: ProductCardProps) {
-  if (compact) {
-    return (
-      <article className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:shadow-md">
-        <figure className="relative aspect-square overflow-hidden bg-slate-100">
-          <ProductImage src={product.image} alt={product.name} sizes="(max-width: 640px) 50vw, 25vw" />
-        </figure>
-        <section className="p-4">
-          <span className="mb-1 inline-block rounded bg-surface px-2 py-0.5 font-condensed text-xs font-semibold uppercase text-muted">
-            {product.category}
-          </span>
-          <h3 className="mb-3 font-display text-base font-semibold text-primary dark:text-foreground">
-            {product.name}
-          </h3>
-          <WhatsAppButton
-            productName={product.name}
-            category={product.category}
-            compact
-            className="w-full"
-          />
-        </section>
-      </article>
-    );
-  }
+export default function ProductCard({ product, variant = "grid" }: ProductCardProps) {
+  if (variant !== "grid") return null;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:shadow-md md:flex-row">
-      <figure className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 md:aspect-auto md:min-h-[220px] md:w-2/5">
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg">
+      <figure className="relative aspect-square overflow-hidden bg-slate-100">
         <ProductImage
           src={product.image}
           alt={product.name}
-          sizes="(max-width: 768px) 100vw, 40vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="transition-transform duration-500 group-hover:scale-105"
         />
       </figure>
-      <section className="flex flex-1 flex-col justify-center p-6">
-        <span className="mb-2 inline-block w-fit rounded bg-surface px-2 py-0.5 font-condensed text-xs font-semibold uppercase text-muted">
+      <section className="flex flex-1 flex-col p-3 sm:p-4">
+        <span className="mb-2 inline-block w-fit max-w-full truncate rounded-md bg-surface px-2 py-0.5 font-condensed text-[10px] font-semibold uppercase tracking-wide text-muted sm:text-xs">
           {product.category}
         </span>
-        <h3 className="mb-2 font-display text-xl font-bold text-primary dark:text-foreground">
+        <h3 className="mb-2 line-clamp-2 flex-1 font-display text-sm font-semibold leading-snug text-primary dark:text-foreground sm:text-base">
           {product.name}
         </h3>
-        <p className="mb-4 line-clamp-3 text-sm text-muted">{product.description}</p>
-        <p className="mb-4 font-display text-lg font-semibold text-accent">₹ {product.price}</p>
-        <WhatsAppButton productName={product.name} category={product.category} />
+        <p className="mb-3 font-display text-base font-bold text-accent sm:text-lg">
+          ₹ {product.price}
+        </p>
+        <WhatsAppButton
+          productName={product.name}
+          category={product.category}
+          compact
+          className="mt-auto w-full text-xs sm:text-sm"
+        />
       </section>
     </article>
   );
