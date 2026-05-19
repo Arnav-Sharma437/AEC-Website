@@ -106,10 +106,32 @@ function DashboardSkeleton() {
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chartsReady, setChartsReady] = useState(false);
+
+  useEffect(() => {
+    setChartsReady(true);
+  }, []);
 
   useEffect(() => {
     fetch("/api/admin/analytics")
-      .then((r) => r.json())
+      .then(async (r) => {
+        const json = await r.json();
+        if (!r.ok || json.error || typeof json.total !== "number") {
+          throw new Error(json.error || "Failed to load analytics");
+        }
+        return {
+          total: json.total,
+          inStock: json.inStock ?? 0,
+          outOfStock: json.outOfStock ?? 0,
+          totalEnquiries: json.totalEnquiries ?? 0,
+          recentEnquiries: Array.isArray(json.recentEnquiries)
+            ? json.recentEnquiries
+            : [],
+          productsByCategory: Array.isArray(json.productsByCategory)
+            ? json.productsByCategory
+            : [],
+        } satisfies Analytics;
+      })
       .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
@@ -130,11 +152,16 @@ export default function AnalyticsDashboard() {
     { name: "Out of Stock", value: data.outOfStock },
   ];
 
-  const categoryBarData = (data.productsByCategory ?? []).map((c) => ({
-    name: c.name.length > 14 ? c.name.slice(0, 12) + "…" : c.name,
-    fullName: c.name,
-    count: c.count,
-  }));
+  const categoryBarData = (data.productsByCategory ?? []).map((c) => {
+    const label = c.name || c.slug || "Unknown";
+    return {
+      name: label.length > 14 ? `${label.slice(0, 12)}…` : label,
+      fullName: label,
+      count: c.count ?? 0,
+    };
+  });
+
+  const stockTotal = data.inStock + data.outOfStock;
 
   const cards = [
     {
@@ -206,6 +233,8 @@ export default function AnalyticsDashboard() {
           <p className="mb-4 text-sm text-slate-500">Catalogue breakdown by category</p>
           {categoryBarData.length === 0 ? (
             <p className="py-16 text-center text-sm text-slate-500">No products yet</p>
+          ) : !chartsReady ? (
+            <div className="h-[280px] animate-pulse rounded-lg bg-slate-100" />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={categoryBarData} margin={{ bottom: 8 }}>
@@ -219,11 +248,7 @@ export default function AnalyticsDashboard() {
                   height={60}
                 />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip
-                  labelFormatter={(_, payload) =>
-                    (payload?.[0]?.payload as { fullName?: string })?.fullName ?? ""
-                  }
-                />
+                <Tooltip />
                 <Bar dataKey="count" fill="#D4A843" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -233,26 +258,32 @@ export default function AnalyticsDashboard() {
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="font-semibold text-slate-900">Stock distribution</h3>
           <p className="mb-4 text-sm text-slate-500">In stock vs out of stock</p>
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart>
-              <Pie
-                data={stockData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={95}
-                paddingAngle={3}
-              >
-                {stockData.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                ))}
-              </Pie>
-              <Legend />
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          {stockTotal === 0 ? (
+            <p className="py-16 text-center text-sm text-slate-500">No products yet</p>
+          ) : !chartsReady ? (
+            <div className="h-[280px] animate-pulse rounded-lg bg-slate-100" />
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={stockData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={95}
+                  paddingAngle={3}
+                >
+                  {stockData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </section>
       </div>
 
@@ -261,7 +292,7 @@ export default function AnalyticsDashboard() {
           <h3 className="font-semibold text-slate-900">Recent enquiries</h3>
           <p className="text-sm text-slate-500">Last 10 messages from customers</p>
         </div>
-        {data.recentEnquiries.length === 0 ? (
+        {(data.recentEnquiries ?? []).length === 0 ? (
           <div className="flex flex-col items-center gap-2 p-12 text-center">
             <Inbox className="h-10 w-10 text-slate-300" />
             <p className="font-medium text-slate-700">No enquiries yet</p>
@@ -280,7 +311,7 @@ export default function AnalyticsDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {data.recentEnquiries.map((e) => (
+                {(data.recentEnquiries ?? []).map((e) => (
                   <tr
                     key={e._id}
                     className="border-t border-slate-100 transition hover:bg-slate-50/80"
