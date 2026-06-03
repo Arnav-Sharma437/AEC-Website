@@ -168,9 +168,9 @@ export default function ShopContent() {
       ) : (
         <>
           <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-            {visible.map((product) => (
+            {visible.map((product, index) => (
               <li key={product.id} className="h-full">
-                <ProductCard product={product} variant="grid" />
+                <ProductCard product={product} variant="grid" index={index % 12} />
               </li>
             ))}
           </ul>

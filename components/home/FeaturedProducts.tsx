@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Product } from "@/data/products";
 import { fetchPublicProducts, getStaticProductsFallback } from "@/lib/products-api";
 import ProductCard from "@/components/shop/ProductCard";
+import SectionHeading from "@/components/motion/SectionHeading";
 
 export default function FeaturedProducts() {
   const [featured, setFeatured] = useState<Product[]>([]);
@@ -27,16 +28,14 @@ export default function FeaturedProducts() {
   return (
     <section className="bg-background py-20">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <h2 className="mb-12 text-center font-display text-3xl font-bold uppercase text-primary dark:text-foreground">
-          Featured Products
-        </h2>
+        <SectionHeading title="Featured Products" />
         {loading ? (
           <p className="text-center text-muted">Loading featured products...</p>
         ) : (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((product) => (
+            {featured.map((product, index) => (
               <li key={product.id}>
-                <ProductCard product={product} variant="grid" />
+                <ProductCard product={product} variant="grid" index={index} />
               </li>
             ))}
           </ul>

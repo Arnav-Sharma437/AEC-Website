@@ -3,11 +3,28 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { HeroSlide } from "@/lib/hero-utils";
+import { DURATION, EASE_OUT } from "@/lib/motion";
 
 const IMAGE_DURATION = 4000;
 const EMPTY_BG = "bg-[#0a0f14]";
+
+const textContainer = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+  },
+};
+
+const textItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: DURATION.slow, ease: EASE_OUT },
+  },
+};
 
 async function fetchHeroSlides(): Promise<HeroSlide[]> {
   try {
@@ -32,7 +49,7 @@ function HeroCta({ text, link }: { text: string; link: string }) {
   const isExternal = /^https?:\/\//i.test(href);
 
   const className =
-    "inline-flex items-center justify-center rounded-md bg-accent px-6 py-3 font-display text-sm font-semibold uppercase tracking-wide text-primary transition hover:brightness-105";
+    "inline-flex items-center justify-center rounded-md bg-accent px-6 py-3 font-display text-sm font-semibold uppercase tracking-wide text-primary transition-colors duration-300 ease-out hover:brightness-105";
 
   if (isExternal) {
     return (
@@ -50,6 +67,7 @@ function HeroCta({ text, link }: { text: string; link: string }) {
 }
 
 export default function HeroSlider() {
+  const reduced = useReducedMotion();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -139,7 +157,7 @@ export default function HeroSlider() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: DURATION.slow, ease: EASE_OUT }}
           className="absolute inset-0"
         >
           {slide.type === "video" ? (
@@ -165,43 +183,53 @@ export default function HeroSlider() {
       </AnimatePresence>
 
       {hasCopy && (
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
+        <motion.div
+          key={`overlay-${current}`}
+          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent"
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: DURATION.slow, ease: EASE_OUT }}
+        />
       )}
 
       {hasCopy && (
         <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-24 pt-32 lg:px-16 lg:pb-32">
-          {slide.heading && (
-            <motion.h1
-              key={`h-${current}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-3 max-w-3xl font-display text-3xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl"
-            >
-              {slide.heading}
-            </motion.h1>
-          )}
-          {slide.subheading && (
-            <motion.p
-              key={`s-${current}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 }}
-              className="mb-8 max-w-xl text-base text-white/90 md:text-lg"
-            >
-              {slide.subheading}
-            </motion.p>
-          )}
-          {slide.buttonText && (
-            <motion.div
-              key={`b-${current}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.16 }}
-              className="pointer-events-auto"
-            >
-              <HeroCta text={slide.buttonText} link={slide.buttonLink} />
-            </motion.div>
-          )}
+          <motion.div
+            key={`copy-${current}`}
+            variants={reduced ? undefined : textContainer}
+            initial={reduced ? false : "hidden"}
+            animate="show"
+          >
+            {slide.heading && (
+              <motion.h1
+                variants={reduced ? undefined : textItem}
+                className="mb-3 max-w-3xl font-display text-3xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl"
+              >
+                {slide.heading}
+              </motion.h1>
+            )}
+            {slide.subheading && (
+              <motion.p
+                variants={reduced ? undefined : textItem}
+                className="mb-8 max-w-xl text-base text-white/90 md:text-lg"
+              >
+                {slide.subheading}
+              </motion.p>
+            )}
+            {slide.buttonText && (
+              <motion.div
+                variants={reduced ? undefined : textItem}
+                transition={
+                  reduced
+                    ? undefined
+                    : { delay: 0.28, duration: DURATION.medium, ease: EASE_OUT }
+                }
+                className="pointer-events-auto"
+              >
+                <HeroCta text={slide.buttonText} link={slide.buttonLink} />
+              </motion.div>
+            )}
+          </motion.div>
         </div>
       )}
 
