@@ -1,46 +1,65 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import { clients } from "@/data/clients";
-import SectionHeading from "@/components/motion/SectionHeading";
-import { DURATION, EASE_OUT, fadeIn, staggerContainer, VIEWPORT_ONCE } from "@/lib/motion";
+import SectionHeading from "@/components/premium/SectionHeading";
+import ScrollReveal from "@/components/premium/ScrollReveal";
+import { gsap, ScrollTrigger } from "@/lib/premium/gsap";
+import { usePremiumMotion } from "@/components/providers/PremiumExperienceProvider";
 
 export default function OurClients() {
-  const reduced = useReducedMotion();
+  const premium = usePremiumMotion();
+  const gridRef = useRef<HTMLUListElement>(null);
+
+  useGSAP(
+    () => {
+      if (!premium || !gridRef.current) return;
+      const items = gridRef.current.querySelectorAll(".client-logo");
+      gsap.fromTo(
+        items,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.07,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: "top 80%",
+            once: true,
+          },
+        }
+      );
+    },
+    { dependencies: [premium], scope: gridRef }
+  );
 
   return (
-    <section className="py-20">
+    <ScrollReveal className="py-20">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="Our Trusted Clients" />
-        <motion.ul
+        <ul
+          ref={gridRef}
           className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6"
-          variants={staggerContainer}
-          initial={reduced ? false : "hidden"}
-          whileInView={reduced ? undefined : "visible"}
-          viewport={VIEWPORT_ONCE}
         >
           {clients.map((client) => (
-            <motion.li
+            <li
               key={client.id}
-              variants={fadeIn}
-              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              whileHover={
-                reduced
-                  ? undefined
-                  : { filter: "grayscale(0) brightness(1.05)" }
-              }
-              className="flex aspect-square flex-col items-center justify-center rounded-lg border border-border bg-surface p-4 grayscale transition-[filter] duration-300 ease-out hover:grayscale-0 dark:bg-card"
+              className="client-logo flex aspect-square flex-col items-center justify-center rounded-lg border border-border bg-surface p-4 grayscale transition-[filter] duration-300 ease-out hover:grayscale-0 hover:brightness-110 dark:bg-card"
+              data-cursor-hover
             >
-              <span className="mb-2 font-display text-2xl font-bold text-primary/30 transition-colors duration-300 group-hover:text-primary/60">
+              <span className="mb-2 font-display text-2xl font-bold text-primary/30">
                 {client.name.charAt(0)}
               </span>
               <p className="text-center text-xs font-medium text-muted">
                 {client.name}
               </p>
-            </motion.li>
+            </li>
           ))}
-        </motion.ul>
+        </ul>
       </article>
-    </section>
+    </ScrollReveal>
   );
 }

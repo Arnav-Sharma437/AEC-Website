@@ -23,7 +23,123 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Premium cursor (desktop only) */
+body.premium-cursor,
+body.premium-cursor a,
+body.premium-cursor button {
+  cursor: none !important;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: #d4af37;
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(212, 175, 55, 0.65);
+  transition: border-color 0.25s ease;
+}
+
+.cursor-ring--accent {
+  border-color: #1c2b3a;
+  background: rgba(212, 175, 55, 0.12);
+}
+
+/* 3D category flip */
+.flip-card {
+  perspective: 1200px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Hero & section 3D */
+.hero-text-tilt {
+  transform-style: preserve-3d;
+}
+
+.perspective-heading {
+  perspective: 800px;
+}
+
+.stat-card-3d,
+.timeline-card-3d,
+.founder-text-3d {
+  transform-style: preserve-3d;
+}
+
+.timeline-perspective {
+  perspective: 1400px;
+}
+
+.gradient-mesh {
+  background: linear-gradient(
+    125deg,
+    rgba(212, 175, 55, 0.25) 0%,
+    rgba(28, 43, 58, 0.4) 35%,
+    rgba(107, 138, 173, 0.2) 70%,
+    rgba(212, 175, 55, 0.15) 100%
+  );
+  background-size: 200% 200%;
+}
+
+.why-icon {
+  display: inline-block;
+  transition: transform 0.35s ease;
+}
+
+.why-card:hover .why-icon {
+  transform: translateY(-4px) scale(1.08);
 }
 
 body {

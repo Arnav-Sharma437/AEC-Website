@@ -1,17 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import AnimatedCounter from "@/components/motion/AnimatedCounter";
-import SectionHeading from "@/components/motion/SectionHeading";
-import {
-  DURATION,
-  EASE_OUT,
-  fadeIn,
-  staggerContainer,
-  transition,
-  VIEWPORT_ONCE,
-} from "@/lib/motion";
+import SectionHeading from "@/components/premium/SectionHeading";
+import GsapCounter from "@/components/premium/GsapCounter";
+import ScrollReveal from "@/components/premium/ScrollReveal";
 
 const tabs = [
   {
@@ -42,12 +34,11 @@ const stats = [
 ];
 
 export default function CompanyOverview() {
-  const reduced = useReducedMotion();
   const [active, setActive] = useState("who");
   const current = tabs.find((t) => t.id === active)!;
 
   return (
-    <section className="bg-surface py-20 dark:bg-background">
+    <ScrollReveal className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="About Alamdaar Engineering Concern" />
         <nav className="mb-8 flex flex-wrap justify-center gap-2">
@@ -56,6 +47,7 @@ export default function CompanyOverview() {
               key={tab.id}
               type="button"
               onClick={() => setActive(tab.id)}
+              data-cursor-hover
               className={`rounded-md px-4 py-2 font-display text-sm font-semibold uppercase transition ${
                 active === tab.id
                   ? "bg-primary text-white"
@@ -69,28 +61,21 @@ export default function CompanyOverview() {
         <p className="mx-auto mb-12 max-w-3xl text-center text-lg text-muted leading-relaxed">
           {current.content}
         </p>
-        <motion.ul
-          className="grid grid-cols-2 gap-6 md:grid-cols-4"
-          variants={staggerContainer}
-          initial={reduced ? false : "hidden"}
-          whileInView={reduced ? undefined : "visible"}
-          viewport={VIEWPORT_ONCE}
-        >
+        <ul className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {stats.map((s) => (
-            <motion.li
+            <li
               key={s.label}
-              variants={fadeIn}
-              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
               className="rounded-lg bg-card p-6 text-center shadow-sm"
+              data-cursor-hover
             >
               <p className="font-display text-3xl font-bold text-accent">
-                <AnimatedCounter value={s.value} />
+                <GsapCounter value={s.value} />
               </p>
               <p className="text-sm uppercase text-muted">{s.label}</p>
-            </motion.li>
+            </li>
           ))}
-        </motion.ul>
+        </ul>
       </article>
-    </section>
+    </ScrollReveal>
   );
 }

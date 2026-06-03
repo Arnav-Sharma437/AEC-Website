@@ -2,29 +2,22 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useGSAP } from "@gsap/react";
 import type { HeroSlide } from "@/lib/hero-utils";
-import { DURATION, EASE_OUT } from "@/lib/motion";
+import { gsap, ScrollTrigger } from "@/lib/premium/gsap";
+import { usePremiumMotion } from "@/components/providers/PremiumExperienceProvider";
+import Magnetic from "@/components/premium/Magnetic";
+import MouseTilt from "@/components/premium/MouseTilt";
+
+const HeroParticles = dynamic(
+  () => import("@/components/premium/HeroParticles"),
+  { ssr: false }
+);
 
 const IMAGE_DURATION = 4000;
 const EMPTY_BG = "bg-[#0a0f14]";
-
-const textContainer = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
-  },
-};
-
-const textItem = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: DURATION.slow, ease: EASE_OUT },
-  },
-};
 
 async function fetchHeroSlides(): Promise<HeroSlide[]> {
   try {
@@ -47,31 +40,32 @@ async function fetchHeroSlides(): Promise<HeroSlide[]> {
 function HeroCta({ text, link }: { text: string; link: string }) {
   const href = link || "/shop";
   const isExternal = /^https?:\/\//i.test(href);
-
   const className =
     "inline-flex items-center justify-center rounded-md bg-accent px-6 py-3 font-display text-sm font-semibold uppercase tracking-wide text-primary transition-colors duration-300 ease-out hover:brightness-105";
 
-  if (isExternal) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {text}
-      </a>
-    );
-  }
-
-  return (
+  const inner = isExternal ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {text}
+    </a>
+  ) : (
     <Link href={href} className={className}>
       {text}
     </Link>
   );
+
+  return <Magnetic className="inline-block">{inner}</Magnetic>;
 }
 
 export default function HeroSlider() {
-  const reduced = useReducedMotion();
+  const premium = usePremiumMotion();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [ready, setReady] = useState(false);
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const fgRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -126,6 +120,48 @@ export default function HeroSlider() {
     v.play().catch(() => {});
   }, [current, slides]);
 
+  useGSAP(
+    () => {
+      if (!premium || !sectionRef.current || !bgRef.current || !fgRef.current) return;
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.6,
+        onUpdate: (self) => {
+          const p = self.progress;
+          gsap.set(bgRef.current, { y: p * 120 });
+          gsap.set(fgRef.current, { y: p * -40 });
+        },
+      });
+
+      if (copyRef.current) {
+        gsap.fromTo(
+          copyRef.current,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            delay: 0.15,
+          }
+        );
+      }
+    },
+    { dependencies: [premium, current], scope: sectionRef }
+  );
+
+  useEffect(() => {
+    if (!premium || !copyRef.current) return;
+    gsap.fromTo(
+      copyRef.current,
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }
+    );
+  }, [current, premium]);
+
   if (!ready) {
     return <section className={`relative h-screen w-full ${EMPTY_BG}`} aria-hidden />;
   }
@@ -143,116 +179,102 @@ export default function HeroSlider() {
   const hasCopy = Boolean(slide.heading || slide.subheading || slide.buttonText);
 
   return (
-    <section className={`relative h-screen w-full overflow-hidden ${EMPTY_BG}`}>
-      <div className="absolute left-0 right-0 top-0 z-20 h-1 bg-white/20">
+    <section
+      ref={sectionRef}
+      className={`hero-section relative h-screen w-full overflow-hidden ${EMPTY_BG}`}
+    >
+      <div className="absolute left-0 right-0 top-0 z-30 h-1 bg-white/20">
         <div
           className="h-full bg-accent transition-all duration-100"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`${current}-${slide.src}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: DURATION.slow, ease: EASE_OUT }}
-          className="absolute inset-0"
-        >
-          {slide.type === "video" ? (
-            <video
-              ref={videoRef}
-              key={slide.src}
-              src={slide.src}
-              autoPlay
-              muted
-              playsInline
-              onEnded={next}
-              onTimeUpdate={(e) => {
-                const v = e.currentTarget;
-                if (v.duration) setProgress((v.currentTime / v.duration) * 100);
-              }}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={slide.src} alt="" className="h-full w-full object-cover" />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div ref={bgRef} className="hero-bg-layer absolute inset-0 z-0">
+        {slide.type === "video" ? (
+          <video
+            ref={videoRef}
+            key={slide.src}
+            src={slide.src}
+            autoPlay
+            muted
+            playsInline
+            onEnded={next}
+            onTimeUpdate={(e) => {
+              const v = e.currentTarget;
+              if (v.duration) setProgress((v.currentTime / v.duration) * 100);
+            }}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={slide.src}
+            src={slide.src}
+            alt=""
+            className="h-full w-full object-cover transition-opacity duration-700"
+          />
+        )}
+      </div>
+
+      {premium && <HeroParticles />}
 
       {hasCopy && (
-        <motion.div
-          key={`overlay-${current}`}
-          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent"
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: DURATION.slow, ease: EASE_OUT }}
-        />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
       )}
 
-      {hasCopy && (
-        <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-24 pt-32 lg:px-16 lg:pb-32">
-          <motion.div
-            key={`copy-${current}`}
-            variants={reduced ? undefined : textContainer}
-            initial={reduced ? false : "hidden"}
-            animate="show"
-          >
-            {slide.heading && (
-              <motion.h1
-                variants={reduced ? undefined : textItem}
-                className="mb-3 max-w-3xl font-display text-3xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl"
-              >
-                {slide.heading}
-              </motion.h1>
-            )}
-            {slide.subheading && (
-              <motion.p
-                variants={reduced ? undefined : textItem}
-                className="mb-8 max-w-xl text-base text-white/90 md:text-lg"
-              >
-                {slide.subheading}
-              </motion.p>
-            )}
+      <div
+        ref={fgRef}
+        className="hero-fg-layer relative z-20 flex h-full flex-col justify-end px-6 pb-24 pt-32 lg:px-16 lg:pb-32"
+      >
+        {hasCopy && (
+          <div ref={copyRef}>
+            <MouseTilt
+              className={premium ? "hero-text-tilt max-w-3xl" : "max-w-3xl"}
+              maxTilt={premium ? 10 : 0}
+            >
+              {slide.heading && (
+                <h1 className="mb-3 font-display text-3xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl">
+                  {slide.heading}
+                </h1>
+              )}
+              {slide.subheading && (
+                <p className="mb-8 max-w-xl text-base text-white/90 md:text-lg">
+                  {slide.subheading}
+                </p>
+              )}
+            </MouseTilt>
             {slide.buttonText && (
-              <motion.div
-                variants={reduced ? undefined : textItem}
-                transition={
-                  reduced
-                    ? undefined
-                    : { delay: 0.28, duration: DURATION.medium, ease: EASE_OUT }
-                }
-                className="pointer-events-auto"
-              >
+              <div className="pointer-events-auto mt-2">
                 <HeroCta text={slide.buttonText} link={slide.buttonLink} />
-              </motion.div>
+              </div>
             )}
-          </motion.div>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       {slides.length > 1 && (
         <>
           <button
             type="button"
             onClick={() => goTo(current - 1)}
-            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition hover:bg-black/60"
+            className="absolute left-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition hover:bg-black/60"
             aria-label="Previous slide"
+            data-cursor-hover
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             type="button"
             onClick={next}
-            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition hover:bg-black/60"
+            className="absolute right-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur transition hover:bg-black/60"
             aria-label="Next slide"
+            data-cursor-hover
           >
             <ChevronRight className="h-6 w-6" />
           </button>
 
-          <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+          <div className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 gap-2">
             {slides.map((_, i) => (
               <button
                 key={i}
@@ -262,6 +284,7 @@ export default function HeroSlider() {
                   i === current ? "w-8 bg-accent" : "w-2 bg-white/50"
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
+                data-cursor-hover
               />
             ))}
           </div>
