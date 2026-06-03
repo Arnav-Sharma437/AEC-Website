@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/premium/gsap";
 import {
@@ -20,45 +20,35 @@ export default function GsapCounter({ value, className }: GsapCounterProps) {
   const parsed = parseStatValue(value);
   const [display, setDisplay] = useState(value);
 
-  useEffect(() => {
-    if (!enabled || !parsed.isNumeric) {
-      setDisplay(value);
-    }
-  }, [enabled, value, parsed.isNumeric]);
-
   useGSAP(
     () => {
-      if (!enabled || !ref.current || !parsed.isNumeric) return;
+      if (!ref.current) return;
+
+      if (!enabled || !parsed.isNumeric) {
+        setDisplay(value);
+        return;
+      }
 
       const counter = { val: 0 };
-      const tween = gsap.to(counter, {
-        val: parsed.target,
-        duration: 1.4,
-        ease: "power2.out",
-        paused: true,
-        onUpdate: () => {
-          setDisplay(
-            `${formatStatCount(Math.round(counter.val), parsed.useCommas)}${parsed.suffix}`
-          );
-        },
-      });
-
-      const trigger = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: ref.current,
         start: "top 85%",
         once: true,
-        onEnter: () => tween.play(),
+        onEnter: () => {
+          gsap.to(counter, {
+            val: parsed.target,
+            duration: 1.4,
+            ease: "power2.out",
+            onUpdate: () => {
+              setDisplay(
+                `${formatStatCount(Math.round(counter.val), parsed.useCommas)}${parsed.suffix}`
+              );
+            },
+          });
+        },
       });
-
-      return () => {
-        tween.kill();
-        trigger.kill();
-      };
     },
-    {
-      dependencies: [enabled, value, parsed.target, parsed.suffix, parsed.useCommas],
-      scope: ref,
-    }
+    { dependencies: [enabled, value], scope: ref }
   );
 
   return (

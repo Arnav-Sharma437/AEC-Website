@@ -82,12 +82,20 @@ export default function PremiumExperienceProvider({
     lenis.on("scroll", ScrollTrigger.update);
     bindLenisScrollTrigger(lenis);
 
-    const onLenisScroll = (instance: Lenis) => {
+    let lastScroll = 0;
+    const onLenisScroll = ({
+      scroll,
+      direction,
+    }: {
+      scroll: number;
+      direction: number;
+    }) => {
       window.dispatchEvent(
         new CustomEvent("lenis-scroll", {
-          detail: { scroll: instance.scroll, direction: instance.direction },
+          detail: { scroll, direction, lastScroll },
         })
       );
+      lastScroll = scroll;
     };
     lenis.on("scroll", onLenisScroll);
 
@@ -104,7 +112,7 @@ export default function PremiumExperienceProvider({
       gsap.ticker.remove(tick);
       lenis.destroy();
       ScrollTrigger.scrollerProxy(document.documentElement, {});
-      ScrollTrigger.clearScrollMemory();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, [enabled]);
 
