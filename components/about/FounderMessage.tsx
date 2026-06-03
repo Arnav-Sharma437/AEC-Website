@@ -1,43 +1,36 @@
 "use client";
 
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import FounderPhotoTilt from "@/components/premium/FounderPhotoTilt";
-import { gsap, ScrollTrigger } from "@/lib/premium/gsap";
-import { usePremiumMotion } from "@/components/providers/PremiumExperienceProvider";
+import { motion, useReducedMotion } from "framer-motion";
+import AecLogo from "@/components/ui/AecLogo";
+import {
+  DURATION,
+  slideFromLeft,
+  slideFromRight,
+  transition,
+  VIEWPORT_ONCE,
+} from "@/lib/motion";
 
 export default function FounderMessage() {
-  const premium = usePremiumMotion();
-  const textRef = useRef<HTMLElement>(null);
-
-  useGSAP(
-    () => {
-      if (!premium || !textRef.current) return;
-      gsap.fromTo(
-        textRef.current,
-        { opacity: 0, x: 64, rotateY: 18 },
-        {
-          opacity: 1,
-          x: 0,
-          rotateY: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: textRef.current,
-            start: "top 80%",
-            once: true,
-          },
-        }
-      );
-    },
-    { dependencies: [premium], scope: textRef }
-  );
+  const reduced = useReducedMotion();
 
   return (
     <section className="py-20">
       <article className="mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:px-8">
-        <FounderPhotoTilt />
-        <section ref={textRef} className={premium ? "founder-text-3d" : undefined}>
+        <motion.figure
+          className="flex aspect-square items-center justify-center rounded-lg bg-surface p-8 dark:bg-card"
+          initial={reduced ? false : slideFromLeft.hidden}
+          whileInView={reduced ? undefined : slideFromLeft.visible}
+          viewport={VIEWPORT_ONCE}
+          transition={transition(reduced, DURATION.medium)}
+        >
+          <AecLogo size="xl" />
+        </motion.figure>
+        <motion.section
+          initial={reduced ? false : slideFromRight.hidden}
+          whileInView={reduced ? undefined : slideFromRight.visible}
+          viewport={VIEWPORT_ONCE}
+          transition={transition(reduced, DURATION.medium)}
+        >
           <p className="mb-2 font-condensed text-sm font-semibold uppercase tracking-widest text-accent">
             Founder&apos;s Message
           </p>
@@ -65,7 +58,7 @@ export default function FounderMessage() {
               founded on integrity, precision, and a shared vision for project success.
             </p>
           </blockquote>
-        </section>
+        </motion.section>
       </article>
     </section>
   );

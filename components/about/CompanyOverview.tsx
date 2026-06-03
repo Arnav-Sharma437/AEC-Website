@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import SectionHeading from "@/components/premium/SectionHeading";
-import GsapCounter from "@/components/premium/GsapCounter";
-import ScrollReveal from "@/components/premium/ScrollReveal";
+import { motion, useReducedMotion } from "framer-motion";
+import AnimatedCounter from "@/components/motion/AnimatedCounter";
+import SectionHeading from "@/components/motion/SectionHeading";
+import {
+  DURATION,
+  EASE_OUT,
+  fadeIn,
+  staggerContainer,
+  transition,
+  VIEWPORT_ONCE,
+} from "@/lib/motion";
 
 const tabs = [
   {
@@ -34,11 +42,12 @@ const stats = [
 ];
 
 export default function CompanyOverview() {
+  const reduced = useReducedMotion();
   const [active, setActive] = useState("who");
   const current = tabs.find((t) => t.id === active)!;
 
   return (
-    <ScrollReveal className="bg-surface py-20 dark:bg-background">
+    <section className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="About Alamdaar Engineering Concern" />
         <nav className="mb-8 flex flex-wrap justify-center gap-2">
@@ -47,7 +56,6 @@ export default function CompanyOverview() {
               key={tab.id}
               type="button"
               onClick={() => setActive(tab.id)}
-              data-cursor-hover
               className={`rounded-md px-4 py-2 font-display text-sm font-semibold uppercase transition ${
                 active === tab.id
                   ? "bg-primary text-white"
@@ -61,21 +69,28 @@ export default function CompanyOverview() {
         <p className="mx-auto mb-12 max-w-3xl text-center text-lg text-muted leading-relaxed">
           {current.content}
         </p>
-        <ul className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <motion.ul
+          className="grid grid-cols-2 gap-6 md:grid-cols-4"
+          variants={staggerContainer}
+          initial={reduced ? false : "hidden"}
+          whileInView={reduced ? undefined : "visible"}
+          viewport={VIEWPORT_ONCE}
+        >
           {stats.map((s) => (
-            <li
+            <motion.li
               key={s.label}
+              variants={fadeIn}
+              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
               className="rounded-lg bg-card p-6 text-center shadow-sm"
-              data-cursor-hover
             >
               <p className="font-display text-3xl font-bold text-accent">
-                <GsapCounter value={s.value} />
+                <AnimatedCounter value={s.value} />
               </p>
               <p className="text-sm uppercase text-muted">{s.label}</p>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       </article>
-    </ScrollReveal>
+    </section>
   );
 }

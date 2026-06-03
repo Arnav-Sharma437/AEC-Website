@@ -1,11 +1,15 @@
 "use client";
 
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import SectionHeading from "@/components/premium/SectionHeading";
-import ScrollReveal from "@/components/premium/ScrollReveal";
-import { gsap, ScrollTrigger } from "@/lib/premium/gsap";
-import { usePremiumMotion } from "@/components/providers/PremiumExperienceProvider";
+import { motion, useReducedMotion } from "framer-motion";
+import SectionHeading from "@/components/motion/SectionHeading";
+import {
+  DURATION,
+  EASE_OUT,
+  scaleIn,
+  staggerContainer,
+  transition,
+  VIEWPORT_ONCE,
+} from "@/lib/motion";
 
 const reasons = [
   {
@@ -31,55 +35,47 @@ const reasons = [
 ];
 
 export default function WhyChooseUs() {
-  const premium = usePremiumMotion();
-  const listRef = useRef<HTMLUListElement>(null);
-
-  useGSAP(
-    () => {
-      if (!premium || !listRef.current) return;
-      const cards = listRef.current.querySelectorAll(".why-card");
-      cards.forEach((card, i) => {
-        gsap.fromTo(
-          card,
-          { opacity: 0, scale: 0.92, rotateY: i % 2 ? 12 : -12 },
-          {
-            opacity: 1,
-            scale: 1,
-            rotateY: 0,
-            duration: 0.75,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 88%",
-              once: true,
-            },
-          }
-        );
-      });
-    },
-    { dependencies: [premium], scope: listRef }
-  );
+  const reduced = useReducedMotion();
 
   return (
-    <ScrollReveal className="bg-surface py-20 dark:bg-background">
+    <section className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="Why Alamdaar Engineering?" />
-        <ul ref={listRef} className="grid gap-8 sm:grid-cols-2">
+        <motion.ul
+          className="grid gap-8 sm:grid-cols-2"
+          variants={staggerContainer}
+          initial={reduced ? false : "hidden"}
+          whileInView={reduced ? undefined : "visible"}
+          viewport={VIEWPORT_ONCE}
+        >
           {reasons.map((item) => (
-            <li
+            <motion.li
               key={item.title}
-              className="why-card rounded-lg border border-border bg-card p-8 text-center shadow-sm transition-transform duration-300 hover:scale-[1.02]"
-              data-cursor-hover
+              variants={scaleIn}
+              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
+              className="rounded-lg border border-border bg-card p-8 text-center shadow-sm"
             >
-              <span className="why-icon mb-4 block text-5xl">{item.icon}</span>
+              <motion.span
+                className="mb-4 block text-5xl"
+                whileHover={
+                  reduced
+                    ? undefined
+                    : {
+                        scale: [1, 1.12, 1],
+                        transition: { duration: 0.45, ease: "easeOut" },
+                      }
+                }
+              >
+                {item.icon}
+              </motion.span>
               <h3 className="mb-2 font-display text-xl font-semibold text-primary dark:text-foreground">
                 {item.title}
               </h3>
               <p className="text-muted">{item.desc}</p>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       </article>
-    </ScrollReveal>
+    </section>
   );
 }

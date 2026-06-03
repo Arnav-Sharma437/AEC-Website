@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import FounderMessage from "@/components/about/FounderMessage";
-import CompanyTimeline from "@/components/premium/CompanyTimeline";
 import CompanyOverview from "@/components/about/CompanyOverview";
 import OurClients from "@/components/about/OurClients";
 import OurCertifications from "@/components/about/OurCertifications";
@@ -25,7 +24,6 @@ export default function AboutPage() {
         </article>
       </header>
       <FounderMessage />
-      <CompanyTimeline />
       <CompanyOverview />
       <OurClients />
       <OurCertifications />

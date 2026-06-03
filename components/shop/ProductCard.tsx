@@ -1,22 +1,49 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { motion, useReducedMotion } from "framer-motion";
 import type { Product } from "@/data/products";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import ProductImage from "./ProductImage";
-import { usePremiumMotion } from "@/components/providers/PremiumExperienceProvider";
-
-const Tilt = dynamic(() => import("react-parallax-tilt"), { ssr: false });
+import { DURATION, EASE_OUT, fadeUp, transition } from "@/lib/motion";
 
 interface ProductCardProps {
   product: Product;
+  /** Grid card for shop & featured sections */
   variant?: "grid";
+  /** Stagger index for scroll-in delay (0.1s per card) */
   index?: number;
 }
 
-function CardContent({ product }: { product: Product }) {
+export default function ProductCard({
+  product,
+  variant = "grid",
+  index = 0,
+}: ProductCardProps) {
+  const reduced = useReducedMotion();
+
+  if (variant !== "grid") return null;
+
   return (
-    <>
+    <motion.article
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm"
+      initial={reduced ? false : fadeUp.hidden}
+      whileInView={reduced ? undefined : fadeUp.visible}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{
+        ...transition(reduced, DURATION.medium),
+        delay: reduced ? 0 : index * 0.1,
+        ease: EASE_OUT,
+      }}
+      whileHover={
+        reduced
+          ? undefined
+          : {
+              y: -5,
+              boxShadow:
+                "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+            }
+      }
+    >
       <figure className="relative aspect-square overflow-hidden bg-slate-100">
         <ProductImage
           src={product.image}
@@ -42,42 +69,6 @@ function CardContent({ product }: { product: Product }) {
           className="mt-auto w-full text-xs transition-colors duration-300 ease-out sm:text-sm"
         />
       </section>
-    </>
-  );
-}
-
-export default function ProductCard({
-  product,
-  variant = "grid",
-}: ProductCardProps) {
-  const premium = usePremiumMotion();
-
-  if (variant !== "grid") return null;
-
-  const articleClass =
-    "group flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm";
-
-  if (!premium) {
-    return (
-      <article className={articleClass}>
-        <CardContent product={product} />
-      </article>
-    );
-  }
-
-  return (
-    <Tilt
-      tiltMaxAngleX={15}
-      tiltMaxAngleY={15}
-      glareEnable
-      glareMaxOpacity={0.2}
-      scale={1.02}
-      transitionSpeed={400}
-      className="h-full"
-    >
-      <article className={articleClass} data-cursor-hover>
-        <CardContent product={product} />
-      </article>
-    </Tilt>
+    </motion.article>
   );
 }
