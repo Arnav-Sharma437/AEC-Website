@@ -23,8 +23,9 @@ export default function StatsBar() {
       if (!premium || !sectionRef.current) return;
 
       const cards = sectionRef.current.querySelectorAll(".stat-card");
+      const cleanups: (() => void)[] = [];
 
-      ScrollTrigger.create({
+      const pin = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=35%",
@@ -32,9 +33,10 @@ export default function StatsBar() {
         pinSpacing: true,
         anticipatePin: 1,
       });
+      cleanups.push(() => pin.kill());
 
       cards.forEach((card, i) => {
-        gsap.fromTo(
+        const tween = gsap.fromTo(
           card,
           { opacity: 0, y: 30, z: -40 },
           {
@@ -51,8 +53,9 @@ export default function StatsBar() {
             },
           }
         );
+        cleanups.push(() => tween.scrollTrigger?.kill());
 
-        card.addEventListener("mouseenter", () => {
+        const onEnter = () => {
           gsap.to(card, {
             z: 24,
             rotateX: -4,
@@ -61,8 +64,8 @@ export default function StatsBar() {
             ease: "power2.out",
             transformPerspective: 800,
           });
-        });
-        card.addEventListener("mouseleave", () => {
+        };
+        const onLeave = () => {
           gsap.to(card, {
             z: 0,
             rotateX: 0,
@@ -70,8 +73,16 @@ export default function StatsBar() {
             duration: 0.5,
             ease: "power2.out",
           });
+        };
+        card.addEventListener("mouseenter", onEnter);
+        card.addEventListener("mouseleave", onLeave);
+        cleanups.push(() => {
+          card.removeEventListener("mouseenter", onEnter);
+          card.removeEventListener("mouseleave", onLeave);
         });
       });
+
+      return () => cleanups.forEach((fn) => fn());
     },
     { dependencies: [premium], scope: sectionRef }
   );

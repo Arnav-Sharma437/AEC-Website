@@ -1,12 +1,13 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-let registered = false;
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function registerGsapPlugins() {
-  if (registered || typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
   gsap.registerPlugin(ScrollTrigger);
-  registered = true;
 }
 
 export { gsap, ScrollTrigger };
