@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { CATEGORIES } from "@/data/categories";
 import { ArrowRight } from "lucide-react";
@@ -39,13 +38,14 @@ export default function CategoryGrid() {
                 href={`/shop?category=${cat.slug}`}
                 className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow duration-300 ease-out hover:border-accent hover:shadow-md"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
-                  <Image
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-800">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={cat.image}
                     alt={cat.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
