@@ -9,6 +9,7 @@ export interface Branch {
   label: string;
   entity: string;
   contacts: BranchContact[];
+  isHeadOffice?: boolean;
 }
 
 export const branches: Branch[] = [
@@ -16,6 +17,7 @@ export const branches: Branch[] = [
     city: "Kolkata",
     label: "Head Office",
     entity: "Alamdaar Engineering Concern",
+    isHeadOffice: true,
     contacts: [
       {
         name: "Huzaifa Yusuf Ali",

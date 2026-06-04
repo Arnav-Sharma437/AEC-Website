@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | AEC",
   },
   description:
-    "AEC — Manufacturer & Supplier of Lifting, Rigging and Material Handling Equipment. Shackles, hoists, winches, pallet trucks & lashings. Howrah, West Bengal — Pan India.",
+    "AEC — Manufacturer & Supplier of Lifting, Rigging, Material Handling Equipment & Scaffolding/Mivan Shuttering Items. Shackles, Hoists, Winches, Pallet Trucks & Lashings. Howrah, West Bengal — Pan India.",
   icons: {
     icon: "/images/logo/aec-logo.png",
     apple: "/images/logo/aec-logo.png",

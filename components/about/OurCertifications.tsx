@@ -8,6 +8,31 @@ import CertificateModal from "@/components/ui/CertificateModal";
 import SectionHeading from "@/components/motion/SectionHeading";
 import { DURATION, EASE_OUT, fadeIn, staggerContainer, VIEWPORT_ONCE } from "@/lib/motion";
 
+function CeMarkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      aria-hidden
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="4" y="4" width="56" height="56" rx="4" stroke="currentColor" strokeWidth="3" />
+      <text
+        x="32"
+        y="42"
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="28"
+        fontWeight="700"
+        fontFamily="Arial, sans-serif"
+      >
+        CE
+      </text>
+    </svg>
+  );
+}
+
 export default function OurCertifications() {
   const reduced = useReducedMotion();
   const [selected, setSelected] = useState<(typeof certifications)[0] | null>(
@@ -19,7 +44,7 @@ export default function OurCertifications() {
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="Our Certifications" />
         <motion.ul
-          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2"
           variants={staggerContainer}
           initial={reduced ? false : "hidden"}
           whileInView={reduced ? undefined : "visible"}
@@ -37,7 +62,11 @@ export default function OurCertifications() {
                 className="flex w-full flex-col items-center rounded-lg border border-border bg-card p-8 text-center shadow-sm transition-[box-shadow,border-color] duration-300 ease-out hover:border-accent hover:shadow-md hover:ring-2 hover:ring-accent/30"
                 whileHover={reduced ? undefined : { y: -4 }}
               >
-                <FileText className="mb-4 h-16 w-16 text-accent" />
+                {cert.variant === "ce" ? (
+                  <CeMarkIcon className="mb-4 h-16 w-16 text-accent" />
+                ) : (
+                  <FileText className="mb-4 h-16 w-16 text-accent" />
+                )}
                 <h3 className="mb-1 font-display font-semibold text-primary dark:text-foreground">
                   {cert.name}
                 </h3>

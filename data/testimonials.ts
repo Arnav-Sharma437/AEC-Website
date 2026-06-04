@@ -31,4 +31,28 @@ export const testimonials: Testimonial[] = [
     company: "Marine & Industrial, Chennai",
     rating: 5,
   },
+  {
+    id: "4",
+    quote:
+      "AEC Has Been Our Go-To Supplier For Wire Ropes And Lifting Hardware. Their Quality Is Consistent And Delivery Is Always On Time.",
+    name: "Vikram Shah",
+    company: "Port Operations, Mumbai",
+    rating: 5,
+  },
+  {
+    id: "5",
+    quote:
+      "We Have Been Sourcing Hoists And Material Handling Equipment From AEC For Years. Reliable Products And Excellent Service.",
+    name: "Mohammed Ismail",
+    company: "Logistics Manager, Chennai",
+    rating: 5,
+  },
+  {
+    id: "6",
+    quote:
+      "AEC's Scaffolding And Rigging Solutions Have Been Instrumental In Our Large Infrastructure Projects. Highly Professional Team.",
+    name: "Pradeep Nair",
+    company: "Project Engineer, Bangalore",
+    rating: 5,
+  },
 ];

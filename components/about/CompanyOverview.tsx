@@ -19,20 +19,18 @@ const tabs = [
   {
     id: "who",
     label: "Who We Are",
-    content:
-      "We are a client-focused engineering firm with 25+ years of experience, committed to precision, dependable service, and building lasting partnerships through excellence.",
+    content: `We Are A Client-Focused Engineering Firm With 25+ Years Of Experience, Committed To Precision, Dependable Service, And Building Lasting Partnerships Through Excellence. AEC Is A Pan-India Supplier Of Certified Lifting, Rigging, Hoists, And Material Handling Equipment, Serving Construction, Infrastructure, Marine, And Industrial Sectors From Our Howrah Headquarters And Regional Branches.`,
   },
   {
     id: "story",
     label: "Our Story",
-    content:
-      `Alamdaar Engineering Concern was established over 25 years ago to manufacture and supply lifting, rigging, and material handling equipment across India. ${BRAND_TAGLINE}`,
+    content: `Alamdaar Engineering Concern Was Established Over 25 Years Ago As A Howrah-Based Trading Firm Supplying Lifting And Rigging Hardware To Local Industry. Through Consistent Quality And Client Trust, We Grew Into A Multi-Branch Operation With Offices In Hyderabad And Chennai, Expanding Our Catalogue To Hoists, Winches, Material Handling Equipment, And Scaffolding/Mivan Shuttering Items. ${BRAND_TAGLINE}`,
   },
   {
     id: "commitment",
     label: "Our Commitment",
     content:
-      "Our commitment is to exceed expectations through on-time delivery, exceptional quality, and comprehensive solutions, ensuring every project's success and client satisfaction.",
+      "Our Commitment Is To Exceed Expectations Through On-Time Delivery, Exceptional Product Quality, And Comprehensive Solutions. We Provide After-Sales Support, Technical Guidance On Product Selection, And Reliable Stock Availability So Every Project Stays On Schedule — Ensuring Every Client's Success And Long-Term Satisfaction.",
   },
 ];
 
@@ -68,7 +66,7 @@ export default function CompanyOverview() {
             </button>
           ))}
         </nav>
-        <p className="mx-auto mb-12 max-w-3xl text-center text-lg text-muted leading-relaxed">
+        <p className="mx-auto mb-12 max-w-3xl text-center text-lg leading-relaxed text-muted">
           {current.content}
         </p>
         <motion.ul

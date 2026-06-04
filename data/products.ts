@@ -1,5 +1,6 @@
 import { CATEGORIES } from "./categories";
 import { FEATURED_PRODUCT_IDS } from "./featured";
+import { toTitleCase } from "@/lib/title-case";
 
 export const PRODUCT_PLACEHOLDER = "/images/product-placeholder.svg";
 
@@ -38,7 +39,9 @@ function createProduct(
     name,
     category: categoryName,
     categorySlug,
-    description: `${name} — premium lifting, rigging & material handling equipment from Alamdaar Engineering Concern (AEC), Howrah.`,
+    description: toTitleCase(
+      `${name} — premium lifting, rigging and material handling equipment from alamdaar engineering concern (aec), howrah`
+    ),
     image: PRODUCT_PLACEHOLDER,
     price: "XXX",
     featured: isFeatured,

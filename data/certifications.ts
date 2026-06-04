@@ -5,6 +5,7 @@ export interface Certification {
   year: string;
   fileUrl: string;
   fileType: "pdf" | "image";
+  variant: "iso" | "ce";
 }
 
 export const certifications: Certification[] = [
@@ -15,21 +16,15 @@ export const certifications: Certification[] = [
     year: "2023",
     fileUrl: "/certificates/iso-9001.pdf",
     fileType: "pdf",
+    variant: "iso",
   },
   {
     id: "2",
-    name: "Quality Management Certificate",
-    issuingBody: "International Standards Body",
+    name: "CE Mark Conformity",
+    issuingBody: "European Conformity Assessment",
     year: "2023",
-    fileUrl: "/certificates/quality-mgmt.pdf",
-    fileType: "pdf",
-  },
-  {
-    id: "3",
-    name: "Safety Compliance Certificate",
-    issuingBody: "Industrial Safety Board",
-    year: "2022",
     fileUrl: "/certificates/safety-compliance.pdf",
     fileType: "pdf",
+    variant: "ce",
   },
 ];

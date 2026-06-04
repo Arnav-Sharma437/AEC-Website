@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <AecLogo size="md" className="mb-4" />
+            <AecLogo size="footer" variant="dark" className="mb-4" />
             <p className="mb-2 text-sm leading-relaxed text-white/80">
               {BRAND_TAGLINE}
             </p>

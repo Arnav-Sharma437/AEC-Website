@@ -1,38 +1,81 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import {
+  Award,
+  BadgeCheck,
+  Truck,
+  Layers,
+  Tag,
+  Headphones,
+  type LucideIcon,
+} from "lucide-react";
 import SectionHeading from "@/components/motion/SectionHeading";
 import {
   DURATION,
   EASE_OUT,
   scaleIn,
   staggerContainer,
-  transition,
   VIEWPORT_ONCE,
 } from "@/lib/motion";
 
-const reasons = [
+const reasons: {
+  num: number;
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+}[] = [
   {
-    icon: "🏭",
+    num: 1,
+    icon: Award,
     title: "25+ Years Experience",
-    desc: "Trusted partner since decades in industrial engineering",
+    desc: "Trusted Partner Since Decades In Industrial Engineering",
   },
   {
-    icon: "✅",
+    num: 2,
+    icon: BadgeCheck,
     title: "Certified Products",
-    desc: "International quality standards and compliance",
+    desc: "International Quality Standards And Compliance",
   },
   {
-    icon: "🚚",
+    num: 3,
+    icon: Truck,
     title: "Pan India Delivery",
-    desc: "Kolkata, Hyderabad, and Chennai branches",
+    desc: "Kolkata, Hyderabad, And Chennai Branches",
   },
   {
-    icon: "🤝",
+    num: 4,
+    icon: Layers,
     title: "End-to-End Solutions",
-    desc: "Not just a vendor — a long-term engineering partner",
+    desc: "Not Just A Vendor — A Long-Term Engineering Partner",
+  },
+  {
+    num: 5,
+    icon: Tag,
+    title: "Competitive Pricing",
+    desc: "Best Value Without Compromising Quality",
+  },
+  {
+    num: 6,
+    icon: Headphones,
+    title: "After Sales Support",
+    desc: "Dedicated Support For Every Client",
   },
 ];
+
+function ReasonBadge({ num, icon: Icon }: { num: number; icon: LucideIcon }) {
+  return (
+    <div
+      className="mx-auto mb-5 flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border-[3px] border-accent bg-surface shadow-sm dark:bg-background"
+      aria-hidden
+    >
+      <Icon className="h-6 w-6 text-accent" strokeWidth={2} />
+      <span className="mt-1 font-display text-base font-bold text-primary dark:text-foreground">
+        {num}
+      </span>
+    </div>
+  );
+}
 
 export default function WhyChooseUs() {
   const reduced = useReducedMotion();
@@ -42,7 +85,7 @@ export default function WhyChooseUs() {
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="Why Alamdaar Engineering?" />
         <motion.ul
-          className="grid gap-8 sm:grid-cols-2"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           variants={staggerContainer}
           initial={reduced ? false : "hidden"}
           whileInView={reduced ? undefined : "visible"}
@@ -53,25 +96,13 @@ export default function WhyChooseUs() {
               key={item.title}
               variants={scaleIn}
               transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              className="rounded-lg border border-border bg-card p-8 text-center shadow-sm"
+              className="rounded-xl border border-border/80 bg-card/80 p-8 text-center shadow-sm backdrop-blur-sm"
             >
-              <motion.span
-                className="mb-4 block text-5xl"
-                whileHover={
-                  reduced
-                    ? undefined
-                    : {
-                        scale: [1, 1.12, 1],
-                        transition: { duration: 0.45, ease: "easeOut" },
-                      }
-                }
-              >
-                {item.icon}
-              </motion.span>
-              <h3 className="mb-2 font-display text-xl font-semibold text-primary dark:text-foreground">
+              <ReasonBadge num={item.num} icon={item.icon} />
+              <h3 className="mb-2 font-display text-lg font-semibold text-primary dark:text-foreground">
                 {item.title}
               </h3>
-              <p className="text-muted">{item.desc}</p>
+              <p className="text-sm leading-relaxed text-muted">{item.desc}</p>
             </motion.li>
           ))}
         </motion.ul>

@@ -50,7 +50,8 @@ export default function FounderMessage() {
               Over the decades, we have grown from a small trading firm into a
               pan-India engineering solutions provider, serving clients across
               construction, infrastructure, marine, and industrial sectors with
-              lifting, rigging, hoists, winches, and material handling equipment.
+              lifting, rigging, hoists, winches, material handling equipment, and
+              scaffolding &amp; mivan shuttering items.
             </p>
             <p>
               Our commitment remains unchanged: to deliver dependable, high-quality

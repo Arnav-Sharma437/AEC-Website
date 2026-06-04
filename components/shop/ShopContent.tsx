@@ -88,7 +88,7 @@ export default function ShopContent() {
           Product Catalogue
         </h1>
         <p className="mt-2 text-muted">
-          Lifting, rigging &amp; material handling equipment — Alamdaar Engineering Concern
+          Lifting, Rigging &amp; Material Handling Equipment — Alamdaar Engineering Concern
         </p>
       </header>
 

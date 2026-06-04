@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import SectionHeading from "@/components/motion/SectionHeading";
+import { toTitleCase } from "@/lib/title-case";
 import { DURATION, EASE_OUT, fadeUp, transition, VIEWPORT_ONCE } from "@/lib/motion";
 
 const factoryImages = [
@@ -40,8 +41,10 @@ export default function FactoryProduction() {
 
       <article className="relative mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading
-          title="Our Factory & Production"
-          subtitle="State-of-the-art manufacturing facility in Howrah, West Bengal"
+          title="Our Factory & Warehouse"
+          subtitle={toTitleCase(
+            "state-of-the-art manufacturing and warehouse facility in howrah, west bengal"
+          )}
           light
         />
 

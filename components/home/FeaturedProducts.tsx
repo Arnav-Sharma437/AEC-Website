@@ -39,7 +39,7 @@ export default function FeaturedProducts() {
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading
           title="Featured Products"
-          subtitle="Core lifting, rigging, hoists, and material handling equipment"
+          subtitle="Core Lifting, Rigging, Hoists, And Material Handling Equipment"
         />
         {loading ? (
           <p className="text-center text-muted">Loading featured products...</p>
