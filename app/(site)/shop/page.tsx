@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { BRAND_TAGLINE } from "@/data/categories";
+import { PRODUCT_COUNT } from "@/data/products";
 import ShopContent from "@/components/shop/ShopContent";
 
 export const metadata: Metadata = {
   title: "Shop",
-  description:
-    "Browse 10,000+ industrial products — material handling, lifting equipment, scaffolding, PPE and more.",
+  description: `Browse ${PRODUCT_COUNT}+ lifting, rigging & material handling products from AEC.`,
 };
 
 export default function ShopPage() {
@@ -16,9 +17,7 @@ export default function ShopPage() {
           <h1 className="font-display text-4xl font-bold uppercase text-white md:text-5xl">
             Product Catalogue
           </h1>
-          <p className="mt-4 text-white/80">
-            Get a quote via WhatsApp — no online checkout required
-          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-white/80">{BRAND_TAGLINE}</p>
         </article>
       </header>
       <Suspense fallback={<p className="py-12 text-center">Loading products...</p>}>

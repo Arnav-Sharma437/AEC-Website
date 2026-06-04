@@ -13,7 +13,10 @@ export default function CategoryGrid() {
   return (
     <section className="bg-surface py-20 dark:bg-background">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <SectionHeading title="Our Product Range" />
+        <SectionHeading
+          title="Our Product Range"
+          subtitle="Five specialised categories for lifting, rigging & material handling"
+        />
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {CATEGORIES.map((cat, index) => (
             <motion.li

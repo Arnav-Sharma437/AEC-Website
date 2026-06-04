@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { normalizeStockFields } from "@/lib/product-stock";
 import { CATEGORIES } from "@/data/categories";
+import { PRODUCT_COUNT } from "@/data/products";
 import { resolveProductImage, PRODUCT_PLACEHOLDER } from "@/lib/products-api";
 import ProductFormModal, { ProductFormData } from "./ProductFormModal";
 import ConfirmDialog from "./ConfirmDialog";
@@ -113,7 +114,8 @@ export default function ProductsManager() {
       const res = await fetch("/api/admin/products/sync", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sync failed");
-      toast(`Synced ${data.synced} products from catalogue`);
+      const removed = data.removed ? ` Removed ${data.removed} old items.` : "";
+      toast(`Synced ${data.synced} products.${removed}`);
       await load();
     } catch (err) {
       toast(err instanceof Error ? err.message : "Sync failed", "error");
@@ -351,7 +353,7 @@ export default function ProductsManager() {
               disabled={syncing}
               className="mt-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-primary"
             >
-              {syncing ? "Syncing..." : "Sync 89 Products"}
+              {syncing ? "Syncing..." : `Sync ${PRODUCT_COUNT} Products`}
             </button>
           </div>
         ) : (

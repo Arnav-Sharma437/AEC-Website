@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Upload, Trash2, Video, Image as ImageIcon, Loader2, Save } from "lucide-react";
 import { uploadWithProgress } from "@/lib/admin-upload-client";
+import { BRAND_TAGLINE } from "@/data/categories";
 import {
   EMPTY_HERO_ASSET,
   type HeroAsset,
@@ -324,7 +325,7 @@ export default function HeroManager() {
                     type="text"
                     value={copy.heading}
                     onChange={(e) => updateCopy(key, { heading: e.target.value })}
-                    placeholder="Engineering Solutions You Can Trust"
+                    placeholder="Your headline for this slide"
                     className={fieldClass}
                   />
                 </label>
@@ -334,7 +335,7 @@ export default function HeroManager() {
                     type="text"
                     value={copy.subheading}
                     onChange={(e) => updateCopy(key, { subheading: e.target.value })}
-                    placeholder="25+ Years of Precision. Certified. Reliable."
+                    placeholder={BRAND_TAGLINE}
                     className={fieldClass}
                   />
                 </label>

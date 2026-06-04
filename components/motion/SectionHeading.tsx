@@ -8,6 +8,8 @@ interface SectionHeadingProps {
   title: string;
   subtitle?: string;
   align?: "center" | "left";
+  /** White text for dark section backgrounds */
+  light?: boolean;
   className?: string;
   titleClassName?: string;
 }
@@ -16,6 +18,7 @@ export default function SectionHeading({
   title,
   subtitle,
   align = "center",
+  light = false,
   className,
   titleClassName,
 }: SectionHeadingProps) {
@@ -39,7 +42,8 @@ export default function SectionHeading({
       >
         <h2
           className={cn(
-            "font-display text-3xl font-bold uppercase text-primary dark:text-foreground md:text-4xl",
+            "font-display text-3xl font-bold uppercase md:text-4xl",
+            light ? "text-white" : "text-primary dark:text-foreground",
             titleClassName
           )}
         >
@@ -63,7 +67,8 @@ export default function SectionHeading({
       {subtitle && (
         <motion.p
           className={cn(
-            "mt-4 max-w-2xl text-muted",
+            "mt-4 max-w-2xl",
+            light ? "text-white/75" : "text-muted",
             centered && "mx-auto"
           )}
           initial={reduced ? false : { opacity: 0 }}

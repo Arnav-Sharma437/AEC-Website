@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
 import { requireAdminSession } from "@/lib/admin-api";
-import { products as staticProducts } from "@/data/products";
+import {
+  products as staticProducts,
+  VALID_PRODUCT_SLUGS,
+  VALID_CATEGORY_SLUGS,
+} from "@/data/products";
+import { REMOVED_CATEGORY_SLUGS } from "@/data/categories";
 
 export async function POST() {
   const { error } = await requireAdminSession();
@@ -32,7 +37,19 @@ export async function POST() {
       synced++;
     }
 
-    return NextResponse.json({ synced, total: staticProducts.length });
+    const purge = await Product.deleteMany({
+      $or: [
+        { slug: { $nin: VALID_PRODUCT_SLUGS } },
+        { category: { $nin: VALID_CATEGORY_SLUGS } },
+        { category: { $in: [...REMOVED_CATEGORY_SLUGS] } },
+      ],
+    });
+
+    return NextResponse.json({
+      synced,
+      total: staticProducts.length,
+      removed: purge.deletedCount,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Sync failed" }, { status: 500 });

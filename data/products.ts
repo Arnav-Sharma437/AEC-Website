@@ -1,4 +1,7 @@
 import { CATEGORIES } from "./categories";
+import { FEATURED_PRODUCT_IDS } from "./featured";
+
+export const PRODUCT_PLACEHOLDER = "/images/product-placeholder.svg";
 
 export interface Product {
   id: string;
@@ -11,73 +14,98 @@ export interface Product {
   featured: boolean;
 }
 
+const featuredSet = new Set<string>(FEATURED_PRODUCT_IDS);
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function createProduct(
   name: string,
   categorySlug: string,
-  featured = false
+  featured?: boolean
 ): Product {
   const category = CATEGORIES.find((c) => c.slug === categorySlug);
   const categoryName = category?.name ?? categorySlug;
+  const id = `${categorySlug}-${slugify(name)}`;
+  const isFeatured = featured ?? featuredSet.has(id);
+
   return {
-    id: `${categorySlug}-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    id,
     name,
     category: categoryName,
     categorySlug,
-    description: `High-quality ${name.toLowerCase()} from Alamdaar Engineering Concern. Built for industrial durability and certified performance.`,
-    image: `/images/products/${categorySlug}/placeholder.jpg`,
+    description: `${name} — premium lifting, rigging & material handling equipment from Alamdaar Engineering Concern (AEC), Howrah.`,
+    image: PRODUCT_PLACEHOLDER,
     price: "XXX",
-    featured,
+    featured: isFeatured,
   };
 }
 
-const materialHandlingNames = [
-  "Engine Crane", "Mini Crane Set", "Hand Stacker", "Drum Stacker",
-  "Drum Mover", "Platform Trolley", "Pallet Truck", "Scissor Table",
-  "Electric Winch", "CD1 Hoist", "KCD Hoist", "Mini Hoist",
-  "Crane Scale", "Chain Hoist", "DHS Chain Hoist", "Wire Rope Winch",
-  "Ratchet Lever", "Chain Pulley Block", "Push Pull Trolley",
-  "Geared Trolley", "Electric Trolley", "Cargo Trolley", "Hydraulic Jack",
-  "Screw Jack", "Ratchet Puller", "P&L Machine", "Beam Clamp",
-  "Magnet Lifter", "Drum Lifter", "Trolley Jack", "Wire Rope Sling",
-  "Chain Sling", "Horizontal Clamp", "Vertical Clamp",
-  "Lashing Belt", "Webbing Sling", "Ratchet Belt", "Spring Balancer",
-  "Hand Winch", "Boat Winch", "Crab Winch", "Block Lifting Clamp",
+type CatalogItem = { name: string; categorySlug: string };
+
+const catalog: CatalogItem[] = [
+  // Lifting Hardware & Rigging
+  { name: "D Shackle Screw Pin", categorySlug: "lifting-hardware-rigging" },
+  { name: "D Shackle Nut Bolt", categorySlug: "lifting-hardware-rigging" },
+  { name: "Bow Shackle Screw Pin", categorySlug: "lifting-hardware-rigging" },
+  { name: "Bow Shackle Nut Bolt", categorySlug: "lifting-hardware-rigging" },
+  { name: "Eye Bolt", categorySlug: "lifting-hardware-rigging" },
+  { name: "Eye Nut", categorySlug: "lifting-hardware-rigging" },
+  { name: "Turnbuckle", categorySlug: "lifting-hardware-rigging" },
+  { name: "Wire Rope Clip", categorySlug: "lifting-hardware-rigging" },
+  { name: "Thimble", categorySlug: "lifting-hardware-rigging" },
+  { name: "Ferrule", categorySlug: "lifting-hardware-rigging" },
+  { name: "Hook", categorySlug: "lifting-hardware-rigging" },
+  { name: "Swivel", categorySlug: "lifting-hardware-rigging" },
+  { name: "Chain Accessories", categorySlug: "lifting-hardware-rigging" },
+  // Hoists & Winches
+  { name: "Electric Wire Rope Hoist", categorySlug: "hoists-winches" },
+  { name: "Chain Hoist", categorySlug: "hoists-winches" },
+  { name: "Electric Chain Hoist", categorySlug: "hoists-winches" },
+  { name: "Mini Electric Hoist", categorySlug: "hoists-winches" },
+  { name: "Electric Winch", categorySlug: "hoists-winches" },
+  { name: "Manual Winch", categorySlug: "hoists-winches" },
+  { name: "Trolley", categorySlug: "hoists-winches" },
+  { name: "Hoist Spare Parts", categorySlug: "hoists-winches" },
+  // Material Handling Equipment
+  { name: "Hand Pallet Truck", categorySlug: "material-handling-equipment" },
+  { name: "Hydraulic Hand Stacker", categorySlug: "material-handling-equipment" },
+  { name: "Semi-Electric Stacker", categorySlug: "material-handling-equipment" },
+  { name: "Fully Electric Stacker", categorySlug: "material-handling-equipment" },
+  { name: "Electric Pallet Truck", categorySlug: "material-handling-equipment" },
+  { name: "Drum Handling Equipment", categorySlug: "material-handling-equipment" },
+  { name: "Platform Trolley", categorySlug: "material-handling-equipment" },
+  // Lashing & Cargo Control
+  { name: "Ratchet Lashing Belt", categorySlug: "lashing-cargo-control" },
+  { name: "Web Sling", categorySlug: "lashing-cargo-control" },
+  { name: "Round Sling", categorySlug: "lashing-cargo-control" },
+  { name: "Cargo Lashing", categorySlug: "lashing-cargo-control" },
+  { name: "Chain Sling", categorySlug: "lashing-cargo-control" },
+  // Wire Rope & Lifting Accessories
+  { name: "Wire Rope", categorySlug: "wire-rope-lifting-accessories" },
+  { name: "Wire Rope Sling", categorySlug: "wire-rope-lifting-accessories" },
+  { name: "Master Link", categorySlug: "wire-rope-lifting-accessories" },
+  { name: "Connecting Link", categorySlug: "wire-rope-lifting-accessories" },
 ];
 
-const liftingNames = [
-  "Eye Hook", "Eye Self Locking Hook", "Eye Slip Hook", "Eye Foundry Hook",
-  "Clevis Hook", "Clevis Self Locking Hook", "Clevis Slip Hook",
-  "Eye Grab Hook", "Clevis Grab Hook", "Shank Hook",
-  "Bow Shackle", "D-Shackle", "Nut Type Bow Shackle",
-  "G.I Wire Rope", "Steel Wire Rope", "Turnbuckles",
-  "Oblong Ring", "Round Ring", "D-Ring", "Masterlink Assembly",
-  "Ferrules", "Safety Latch", "Morris Wheel", "Snatch Pulley",
-];
+export const products: Product[] = catalog.map((item) =>
+  createProduct(item.name, item.categorySlug)
+);
 
-const ppeNames = [
-  "Safety Helmet", "Eye Glasses for Safety", "Anti-Fog Glasses", "Welding Glasses",
-  "Eye Protector", "Ear Protector", "N95 Mask", "3 Ply Mask",
-  "Industrial Nose Mask", "Venus Nose Mask", "Face Protector",
-  "Safety Shoes", "Mallcom Safety Shoes", "Karam Safety Shoes",
-  "Cotton Gloves", "Anti Cut Gloves", "Rubber Gloves",
-  "Reflective Safety Jacket (Orange)", "Reflective Safety Jacket (Green)",
-  "Full Body Belt", "Half Body Belt", "Karam Safety Belt", "Fall Arrester",
-];
+export const PRODUCT_COUNT = products.length;
 
-export const products: Product[] = [
-  ...materialHandlingNames.map((name, i) =>
-    createProduct(name, "material-handling", i < 4)
-  ),
-  ...liftingNames.map((name, i) =>
-    createProduct(name, "lifting-equipment", i < 2)
-  ),
-  ...ppeNames.map((name, i) =>
-    createProduct(name, "ppe", i < 2)
-  ),
-];
+export const VALID_CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
+export const VALID_PRODUCT_SLUGS = products.map((p) => p.id);
 
 export function getFeaturedProducts() {
-  return products.filter((p) => p.featured);
+  const order = FEATURED_PRODUCT_IDS as readonly string[];
+  return order
+    .map((id) => products.find((p) => p.id === id))
+    .filter((p): p is Product => Boolean(p));
 }
 
 export function getProductsByCategory(slug?: string) {

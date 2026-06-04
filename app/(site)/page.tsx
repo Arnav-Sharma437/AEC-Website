@@ -3,6 +3,7 @@ import StatsBar from "@/components/home/StatsBar";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import FactoryProduction from "@/components/home/FactoryProduction";
 import Testimonials from "@/components/home/Testimonials";
 import CTABanner from "@/components/home/CTABanner";
 
@@ -14,6 +15,7 @@ export default function HomePage() {
       <CategoryGrid />
       <FeaturedProducts />
       <WhyChooseUs />
+      <FactoryProduction />
       <Testimonials />
       <CTABanner />
     </>

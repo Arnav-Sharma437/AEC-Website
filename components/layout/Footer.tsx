@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { CATEGORIES } from "@/data/categories";
+import { BRAND_TAGLINE, CATEGORIES } from "@/data/categories";
 import { ctaLinks } from "@/data/branches";
 import AecLogo from "@/components/ui/AecLogo";
 
 export default function Footer() {
-  const topCategories = CATEGORIES.slice(0, 6);
+  const topCategories = CATEGORIES;
 
   return (
     <footer className="bg-primary text-white dark:bg-[#0a1018]">
@@ -13,8 +13,8 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <AecLogo size="md" className="mb-4" />
-            <p className="mb-2 text-sm text-white/80">
-              Driven by Innovation, Defined by Quality.
+            <p className="mb-2 text-sm leading-relaxed text-white/80">
+              {BRAND_TAGLINE}
             </p>
             <p className="mb-4 font-display text-lg font-semibold">
               Alamdaar Engineering Concern

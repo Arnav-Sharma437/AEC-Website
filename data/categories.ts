@@ -5,77 +5,63 @@ export interface Category {
   description: string;
 }
 
+export const BRAND_TAGLINE =
+  "AEC — Manufacturer & Supplier of Lifting, Rigging and Material Handling Equipment";
+
+/** Legacy category slugs removed from catalogue (used by sync purge). */
+export const REMOVED_CATEGORY_SLUGS = [
+  "ppe",
+  "engineering-tools",
+  "welding",
+  "cable-management",
+  "pvc",
+  "safety-nets",
+  "scaffolding",
+  "construction-safety",
+  "stainless-steel",
+  "aec-exclusive",
+  "lifting-equipment",
+  "material-handling",
+] as const;
+
 export const CATEGORIES: Category[] = [
   {
-    name: "Material Handling",
-    slug: "material-handling",
-    icon: "🏗️",
-    description: "Cranes, hoists, trolleys & lifting machinery",
+    name: "Lifting Hardware & Rigging",
+    slug: "lifting-hardware-rigging",
+    icon: "🔗",
+    description:
+      "Shackles, eye bolts, turnbuckles, hooks, and rigging hardware for safe lifting.",
   },
   {
-    name: "Lifting Equipment",
-    slug: "lifting-equipment",
+    name: "Hoists & Winches",
+    slug: "hoists-winches",
     icon: "⚙️",
-    description: "Hooks, shackles, wire ropes & rigging gear",
+    description:
+      "Electric and manual hoists, winches, trolleys, and hoist spare parts.",
   },
   {
-    name: "Scaffolding Items",
-    slug: "scaffolding",
-    icon: "🪜",
-    description: "Scaffolding systems & accessories",
+    name: "Material Handling Equipment",
+    slug: "material-handling-equipment",
+    icon: "🏗️",
+    description:
+      "Pallet trucks, stackers, drum handling, and platform trolleys.",
   },
   {
-    name: "Construction Safety",
-    slug: "construction-safety",
-    icon: "🛡️",
-    description: "Site safety equipment & barriers",
+    name: "Lashing & Cargo Control",
+    slug: "lashing-cargo-control",
+    icon: "⚓",
+    description:
+      "Ratchet lashings, web slings, round slings, and cargo securing gear.",
   },
   {
-    name: "Personal Protective Eq.",
-    slug: "ppe",
-    icon: "🦺",
-    description: "Helmets, gloves, belts & protective gear",
-  },
-  {
-    name: "Welding Equipment",
-    slug: "welding",
-    icon: "🔥",
-    description: "Welding machines & accessories",
-  },
-  {
-    name: "Engineering Tools",
-    slug: "engineering-tools",
-    icon: "🔧",
-    description: "Precision tools for engineering work",
-  },
-  {
-    name: "PVC Equipment",
-    slug: "pvc",
-    icon: "📦",
-    description: "PVC pipes, fittings & equipment",
-  },
-  {
-    name: "Cable Management",
-    slug: "cable-management",
-    icon: "🔌",
-    description: "Cable trays, ties & management systems",
-  },
-  {
-    name: "Safety Net & Ropes",
-    slug: "safety-nets",
+    name: "Wire Rope & Lifting Accessories",
+    slug: "wire-rope-lifting-accessories",
     icon: "🪢",
-    description: "Safety nets, ropes & lashing equipment",
-  },
-  {
-    name: "Stainless Steel Equipment",
-    slug: "stainless-steel",
-    icon: "✨",
-    description: "Premium stainless steel products",
-  },
-  {
-    name: "AEC Exclusive",
-    slug: "aec-exclusive",
-    icon: "⭐",
-    description: "Exclusive Alamdaar Engineering products",
+    description:
+      "Wire rope, slings, master links, and connecting links.",
   },
 ];
+
+export function getCategoryBySlug(slug: string): Category | undefined {
+  return CATEGORIES.find((c) => c.slug === slug);
+}

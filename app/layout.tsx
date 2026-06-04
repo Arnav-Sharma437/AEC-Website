@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | AEC",
   },
   description:
-    "25+ years of precision engineering. Material handling, lifting equipment, scaffolding & safety gear. Pan India — Kolkata, Hyderabad, Chennai.",
+    "AEC — Manufacturer & Supplier of Lifting, Rigging and Material Handling Equipment. Shackles, hoists, winches, pallet trucks & lashings. Howrah, West Bengal — Pan India.",
   icons: {
     icon: "/images/logo/aec-logo.png",
     apple: "/images/logo/aec-logo.png",

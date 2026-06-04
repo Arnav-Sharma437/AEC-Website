@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import type { Product } from "@/data/products";
-import { fetchPublicProducts, getStaticProductsFallback } from "@/lib/products-api";
+import { getFeaturedProducts } from "@/data/products";
+import { FEATURED_PRODUCT_IDS } from "@/data/featured";
+import { fetchPublicProducts } from "@/lib/products-api";
 import ProductCard from "@/components/shop/ProductCard";
 import SectionHeading from "@/components/motion/SectionHeading";
+
+function orderFeatured(list: Product[]): Product[] {
+  return FEATURED_PRODUCT_IDS.map((id) => list.find((p) => p.id === id)).filter(
+    (p): p is Product => Boolean(p)
+  );
+}
 
 export default function FeaturedProducts() {
   const [featured, setFeatured] = useState<Product[]>([]);
@@ -13,14 +21,15 @@ export default function FeaturedProducts() {
   useEffect(() => {
     fetchPublicProducts({ featured: "true" })
       .then((list) => {
-        if (list.length > 0) {
-          setFeatured(list);
+        const ordered = orderFeatured(list);
+        if (ordered.length >= 4) {
+          setFeatured(ordered);
         } else {
-          setFeatured(getStaticProductsFallback().filter((p) => p.featured));
+          setFeatured(getFeaturedProducts());
         }
       })
       .catch(() => {
-        setFeatured(getStaticProductsFallback().filter((p) => p.featured));
+        setFeatured(getFeaturedProducts());
       })
       .finally(() => setLoading(false));
   }, []);
@@ -28,7 +37,10 @@ export default function FeaturedProducts() {
   return (
     <section className="bg-background py-20">
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
-        <SectionHeading title="Featured Products" />
+        <SectionHeading
+          title="Featured Products"
+          subtitle="Core lifting, rigging, hoists, and material handling equipment"
+        />
         {loading ? (
           <p className="text-center text-muted">Loading featured products...</p>
         ) : (

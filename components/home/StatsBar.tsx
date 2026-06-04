@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import AnimatedCounter from "@/components/motion/AnimatedCounter";
+import { PRODUCT_COUNT } from "@/data/products";
 import {
   DURATION,
   EASE_OUT,
@@ -12,7 +13,7 @@ import {
 
 const stats = [
   { value: "25+", label: "Years Experience" },
-  { value: "10,000+", label: "Products" },
+  { value: `${PRODUCT_COUNT}+`, label: "Core Products" },
   { value: "3", label: "Branches Pan India" },
   { value: "ISO", label: "Certified" },
 ];

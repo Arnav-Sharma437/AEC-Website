@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import AnimatedCounter from "@/components/motion/AnimatedCounter";
 import SectionHeading from "@/components/motion/SectionHeading";
+import { PRODUCT_COUNT } from "@/data/products";
+import { BRAND_TAGLINE } from "@/data/categories";
 import {
   DURATION,
   EASE_OUT,
@@ -24,7 +26,7 @@ const tabs = [
     id: "story",
     label: "Our Story",
     content:
-      "Alamdaar Engineering Concern was established over 25 years ago with a clear purpose: to deliver dependable, high-quality solutions in material handling, scaffolding, rigging, and lifting equipment across India.",
+      `Alamdaar Engineering Concern was established over 25 years ago to manufacture and supply lifting, rigging, and material handling equipment across India. ${BRAND_TAGLINE}`,
   },
   {
     id: "commitment",
@@ -37,7 +39,7 @@ const tabs = [
 const stats = [
   { value: "25+", label: "Years" },
   { value: "3", label: "Branches" },
-  { value: "10,000+", label: "Products" },
+  { value: String(PRODUCT_COUNT), label: "Core Products" },
   { value: "100+", label: "Clients" },
 ];
 

@@ -87,7 +87,9 @@ export default function ShopContent() {
         <h1 className="font-display text-3xl font-bold uppercase text-primary dark:text-foreground md:text-4xl">
           Product Catalogue
         </h1>
-        <p className="mt-2 text-muted">Industrial equipment &amp; safety gear from Alamdaar Engineering Concern</p>
+        <p className="mt-2 text-muted">
+          Lifting, rigging &amp; material handling equipment — Alamdaar Engineering Concern
+        </p>
       </header>
 
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

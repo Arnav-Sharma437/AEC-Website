@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BRAND_TAGLINE } from "@/data/categories";
 import BranchCards from "@/components/contact/BranchCards";
 import EnquiryForm from "@/components/contact/EnquiryForm";
 
@@ -24,9 +25,7 @@ export default function ContactPage() {
             <h2 className="mb-2 font-display text-2xl font-bold text-primary dark:text-foreground">
               Alamdaar Engineering Concern
             </h2>
-            <p className="mb-6 text-accent italic">
-              Driven by Innovation, Defined by Quality.
-            </p>
+            <p className="mb-6 text-sm leading-relaxed text-accent">{BRAND_TAGLINE}</p>
             <ul className="space-y-4 text-muted">
               <li>
                 <strong className="text-primary dark:text-foreground">Office:</strong>
