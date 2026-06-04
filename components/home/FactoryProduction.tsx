@@ -7,15 +7,19 @@ import { DURATION, EASE_OUT, fadeUp, transition, VIEWPORT_ONCE } from "@/lib/mot
 
 const factoryImages = [
   {
-    src: "/images/factory/factory-1.svg",
+    src: "/images/factory/Factory-1.jpeg",
     alt: "AEC manufacturing floor — lifting equipment production",
   },
   {
-    src: "/images/factory/factory-2.svg",
+    src: "/images/factory/Factory-2.jpeg",
     alt: "AEC factory — rigging and material handling assembly",
   },
   {
-    src: "/images/factory/factory-3.svg",
+    src: "/images/factory/Factory-3.jpeg",
+    alt: "AEC production and quality control area",
+  },
+  {
+    src: "/images/factory/Factory-4.jpeg",
     alt: "AEC production facility — Howrah, West Bengal",
   },
 ];
@@ -41,7 +45,7 @@ export default function FactoryProduction() {
           light
         />
 
-        <ul className="mt-10 grid gap-6 md:grid-cols-3">
+        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {factoryImages.map((img, index) => (
             <motion.li
               key={img.src}
