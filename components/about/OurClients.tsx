@@ -25,7 +25,7 @@ export default function OurClients() {
               key={client.id}
               variants={fadeIn}
               transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              className="flex aspect-square flex-col items-center justify-center rounded-lg border border-border bg-surface p-4 grayscale transition-[filter] duration-300 ease-out hover:grayscale-0 dark:bg-card"
+              className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface p-4 grayscale transition-[filter] duration-300 ease-out hover:grayscale-0 dark:bg-card"
             >
               <ClientLogo client={client} />
               <p className="mt-3 text-center text-[10px] font-medium leading-tight text-muted">
