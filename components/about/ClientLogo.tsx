@@ -30,7 +30,7 @@ export default function ClientLogo({ client }: { client: Client }) {
       width={160}
       height={80}
       unoptimized
-      className="h-[80px] w-[160px] object-contain object-center"
+      className="mx-auto h-[80px] w-full max-w-[160px] object-contain object-center"
       onError={() => {
         if (usePlaceholder) return;
         const nextIndex = extensionIndex + 1;

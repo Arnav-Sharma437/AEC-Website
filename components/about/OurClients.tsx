@@ -25,10 +25,12 @@ export default function OurClients() {
               key={client.id}
               variants={fadeIn}
               transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface p-4 grayscale transition-[filter] duration-300 ease-out hover:grayscale-0 dark:bg-card"
+              className="flex flex-col items-center justify-center rounded-xl border border-slate-200/90 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.06)] transition-shadow duration-300 ease-out hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)]"
             >
-              <ClientLogo client={client} />
-              <p className="mt-3 text-center text-[10px] font-medium leading-tight text-muted">
+              <div className="flex w-full items-center justify-center px-3 py-4">
+                <ClientLogo client={client} />
+              </div>
+              <p className="mt-1 text-center text-[10px] font-medium leading-tight text-slate-500">
                 {client.name}
               </p>
             </motion.li>
