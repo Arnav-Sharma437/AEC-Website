@@ -1,54 +1,31 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import SectionHeading from "@/components/motion/SectionHeading";
 import { toTitleCase } from "@/lib/title-case";
 import { DURATION, EASE_OUT, fadeUp, transition, VIEWPORT_ONCE } from "@/lib/motion";
 
 const factoryImages = [
-  {
-    src: "/images/factory/Factory-1.jpeg",
-    alt: "AEC manufacturing floor — lifting equipment production",
-  },
-  {
-    src: "/images/factory/Factory-2.jpeg",
-    alt: "AEC factory — rigging and material handling assembly",
-  },
-  {
-    src: "/images/factory/Factory-3.jpeg",
-    alt: "AEC production and quality control area",
-  },
-  {
-    src: "/images/factory/Factory-4.jpeg",
-    alt: "AEC production facility — Howrah, West Bengal",
-  },
+  { src: "/images/factory/Factory-1.jpeg", alt: "AEC factory and warehouse — view 1" },
+  { src: "/images/factory/Factory-2.jpeg", alt: "AEC factory and warehouse — view 2" },
+  { src: "/images/factory/Factory-3.jpeg", alt: "AEC factory and warehouse — view 3" },
+  { src: "/images/factory/Factory-4.jpeg", alt: "AEC factory and warehouse — view 4" },
 ];
 
 export default function FactoryProduction() {
   const reduced = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden bg-[#0a0f14] py-20">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(212,168,67,0.06) 48px, rgba(212,168,67,0.06) 49px)",
-        }}
-        aria-hidden
-      />
-
-      <article className="relative mx-auto max-w-7xl px-4 lg:px-8">
+    <section className="bg-background py-20">
+      <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading
           title="Our Factory & Warehouse"
           subtitle={toTitleCase(
             "state-of-the-art manufacturing and warehouse facility in howrah, west bengal"
           )}
-          light
         />
 
-        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:gap-6">
           {factoryImages.map((img, index) => (
             <motion.li
               key={img.src}
@@ -57,25 +34,19 @@ export default function FactoryProduction() {
               viewport={VIEWPORT_ONCE}
               transition={{
                 ...transition(reduced, DURATION.medium),
-                delay: reduced ? 0 : index * 0.12,
+                delay: reduced ? 0 : index * 0.08,
                 ease: EASE_OUT,
               }}
-              className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 shadow-2xl"
+              className="overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={img.src}
                 alt={img.alt}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="h-auto min-h-[280px] w-full object-contain sm:min-h-[360px] lg:min-h-[420px]"
+                loading="lazy"
+                decoding="async"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <p className="font-condensed text-xs font-semibold uppercase tracking-widest text-accent">
-                  AEC Factory
-                </p>
-                <p className="mt-1 text-sm text-white/90">Howrah, West Bengal</p>
-              </div>
             </motion.li>
           ))}
         </ul>

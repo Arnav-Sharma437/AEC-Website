@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import AecLogo from "@/components/ui/AecLogo";
+import FounderPortrait from "./FounderPortrait";
 import {
   DURATION,
   slideFromLeft,
@@ -16,15 +16,15 @@ export default function FounderMessage() {
   return (
     <section className="py-20">
       <article className="mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:px-8">
-        <motion.figure
-          className="flex aspect-square items-center justify-center rounded-lg bg-surface p-8 dark:bg-card"
+        <motion.div
+          className="flex justify-center lg:justify-start"
           initial={reduced ? false : slideFromLeft.hidden}
           whileInView={reduced ? undefined : slideFromLeft.visible}
           viewport={VIEWPORT_ONCE}
           transition={transition(reduced, DURATION.medium)}
         >
-          <AecLogo size="xl" />
-        </motion.figure>
+          <FounderPortrait />
+        </motion.div>
         <motion.section
           initial={reduced ? false : slideFromRight.hidden}
           whileInView={reduced ? undefined : slideFromRight.visible}
@@ -40,7 +40,7 @@ export default function FounderMessage() {
           <p className="mb-6 text-muted">
             Founder & Principal Advisor, Alamdaar Engineering Concern
           </p>
-          <blockquote className="space-y-4 text-muted leading-relaxed">
+          <blockquote className="space-y-4 leading-relaxed text-muted">
             <p>
               When I established Alamdaar Engineering Concern more than 25 years ago,
               it was with a firm belief that quality, reliability, and client trust are

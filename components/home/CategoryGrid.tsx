@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { CATEGORIES } from "@/data/categories";
+import CategoryImage from "./CategoryImage";
 import { ArrowRight } from "lucide-react";
 import SectionHeading from "@/components/motion/SectionHeading";
 import { toTitleCase } from "@/lib/title-case";
@@ -39,15 +40,11 @@ export default function CategoryGrid() {
                 className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow duration-300 ease-out hover:border-accent hover:shadow-md"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-800">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <CategoryImage
                     src={cat.image}
                     alt={cat.name}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="mb-2 font-display text-lg font-semibold text-primary group-hover:text-accent dark:text-foreground">
