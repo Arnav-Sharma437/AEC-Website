@@ -9,3 +9,6 @@ export const FEATURED_PRODUCT_IDS = [
   "rigging-lifting-accessories-shackles-shackles",
   "rigging-lifting-accessories-webbing-sling-webbing-sling",
 ] as const;
+
+export const FEATURED_CAROUSEL_1_IDS = FEATURED_PRODUCT_IDS.slice(0, 4);
+export const FEATURED_CAROUSEL_2_IDS = FEATURED_PRODUCT_IDS.slice(4, 8);
