@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp, FaFacebook, FaInstagram } from "react-icons/fa";
 import { ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { branches, ctaLinks } from "@/data/branches";
 import { buildGeneralWhatsAppUrl } from "@/lib/whatsapp";
+
+const MOBILE_SLIDE_TRANSITION = { duration: 0.3, ease: "easeInOut" } as const;
 
 function CTAButtons({
   waOpen,
@@ -141,32 +143,58 @@ function CTAButtons({
 export default function StickyCTA() {
   const [waOpen, setWaOpen] = useState(false);
   const [igOpen, setIgOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+
+    function handleScroll() {
+      if (window.matchMedia("(min-width: 768px)").matches) return;
+
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current) {
+        setMobileOpen(false);
+        setWaOpen(false);
+        setIgOpen(false);
+      }
+      lastScrollY.current = currentScrollY;
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  function toggleMobile() {
+    setMobileOpen((prev) => {
+      const next = !prev;
+      if (!next) {
+        setWaOpen(false);
+        setIgOpen(false);
+      }
+      return next;
+    });
+  }
 
   return (
-    <aside className="fixed right-3 top-1/2 z-50 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-4">
-      <button
-        type="button"
-        onClick={() => setMobileOpen((prev) => !prev)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/40 bg-accent text-primary shadow-lg transition hover:bg-accent-dark hover:text-white md:hidden"
-        aria-label={mobileOpen ? "Hide contact shortcuts" : "Show contact shortcuts"}
-        aria-expanded={mobileOpen}
+    <aside className="fixed right-3 top-1/2 z-50 -translate-y-1/2 sm:right-4">
+      {/* Mobile: CTAs and arrow slide together; arrow stays visible when collapsed */}
+      <motion.div
+        className="overflow-hidden md:hidden"
+        initial={false}
+        animate={{ width: mobileOpen ? "auto" : 40 }}
+        transition={MOBILE_SLIDE_TRANSITION}
       >
-        {mobileOpen ? (
-          <ChevronRight className="h-5 w-5" />
-        ) : (
-          <ChevronLeft className="h-5 w-5" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            className="flex flex-col gap-2 md:hidden"
-            initial={{ opacity: 0, x: 28 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 28 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        <motion.div
+          className="flex items-center gap-2"
+          initial={false}
+          animate={{ x: mobileOpen ? 0 : 56 }}
+          transition={MOBILE_SLIDE_TRANSITION}
+        >
+          <div
+            className="flex flex-col gap-2"
+            style={{ pointerEvents: mobileOpen ? "auto" : "none" }}
+            aria-hidden={!mobileOpen}
           >
             <CTAButtons
               waOpen={waOpen}
@@ -174,10 +202,25 @@ export default function StickyCTA() {
               igOpen={igOpen}
               setIgOpen={setIgOpen}
             />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
 
+          <button
+            type="button"
+            onClick={toggleMobile}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent text-primary shadow-lg transition hover:bg-accent-dark hover:text-white"
+            aria-label={mobileOpen ? "Hide contact shortcuts" : "Show contact shortcuts"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? (
+              <ChevronLeft className="h-5 w-5" aria-hidden />
+            ) : (
+              <ChevronRight className="h-5 w-5" aria-hidden />
+            )}
+          </button>
+        </motion.div>
+      </motion.div>
+
+      {/* Desktop: unchanged */}
       <div className="hidden flex-col gap-2 md:flex">
         <CTAButtons
           waOpen={waOpen}
