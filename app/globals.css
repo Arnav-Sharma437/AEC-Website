@@ -31,6 +31,19 @@ body {
   font-family: var(--font-barlow), system-ui, sans-serif;
 }
 
+@font-face {
+  font-family: "Engravers Old English BT";
+  src:
+    url("/fonts/engravers-old-english/EngraversOldEnglishBT-Regular.woff2") format("woff2"),
+    url("/fonts/engravers-old-english/EngraversOldEnglishBT-Regular.woff") format("woff"),
+    url("/fonts/engravers-old-english/EngraversOldEnglishBT-Regular.ttf") format("truetype"),
+    url("/fonts/engravers-old-english/EngraversOldEnglishBT-Regular.otf") format("opentype"),
+    url("/fonts/engravers-old-english/ENGRS.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

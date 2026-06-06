@@ -42,7 +42,7 @@ function AnimatedBrandName() {
       transition={{ duration: DURATION.medium, ease: EASE_OUT }}
       aria-label="Alamdaar Engineering Concern"
     >
-      <span className="font-blackletter text-[1.15rem] leading-[1.2] tracking-[0.06em] text-primary antialiased dark:text-foreground sm:text-[1.35rem] md:text-[1.45rem]">
+      <span className="font-blackletter text-[1.1rem] leading-[1.15] tracking-[0.04em] text-primary antialiased dark:text-foreground sm:text-[1.3rem] md:text-[1.4rem]">
         Alamdaar Engineering Concern
       </span>
     </motion.span>

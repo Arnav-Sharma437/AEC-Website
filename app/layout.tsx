@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Oswald, Barlow, Barlow_Condensed, MedievalSharp } from "next/font/google";
+import { Oswald, Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/providers/ThemeProvider";
 
@@ -19,12 +19,6 @@ const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
   weight: ["600"],
   variable: "--font-barlow-condensed",
-});
-
-const medievalSharp = MedievalSharp({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-blackletter",
 });
 
 export const metadata: Metadata = {
@@ -48,7 +42,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${oswald.variable} ${barlow.variable} ${barlowCondensed.variable} ${medievalSharp.variable}`}
+      className={`${oswald.variable} ${barlow.variable} ${barlowCondensed.variable}`}
     >
       <body className="font-body">
         <ThemeProvider>{children}</ThemeProvider>
