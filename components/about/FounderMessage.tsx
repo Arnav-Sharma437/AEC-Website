@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import FounderPortrait from "./FounderPortrait";
+import { FOUNDER } from "@/data/founder";
 import {
   DURATION,
   slideFromLeft,
@@ -35,29 +36,13 @@ export default function FounderMessage() {
             Founder&apos;s Message
           </p>
           <h2 className="mb-2 font-display text-2xl font-bold text-primary dark:text-foreground">
-            Mr. Hozefa Yusuf Ali Dhinojwala
+            {FOUNDER.name}
           </h2>
-          <p className="mb-6 text-muted">
-            Founder & Principal Advisor, Alamdaar Engineering Concern
-          </p>
+          <p className="mb-6 text-muted">{FOUNDER.designation}</p>
           <blockquote className="space-y-4 leading-relaxed text-muted">
-            <p>
-              When I established Alamdaar Engineering Concern more than 25 years ago,
-              it was with a firm belief that quality, reliability, and client trust are
-              the cornerstones of a successful engineering business.
-            </p>
-            <p>
-              Over the decades, we have grown from a small trading firm into a
-              pan-India engineering solutions provider, serving clients across
-              construction, infrastructure, marine, and industrial sectors with
-              lifting, rigging, hoists, winches, material handling equipment, and
-              scaffolding &amp; mivan shuttering items.
-            </p>
-            <p>
-              Our commitment remains unchanged: to deliver dependable, high-quality
-              products backed by exceptional service. Every partnership we build is
-              founded on integrity, precision, and a shared vision for project success.
-            </p>
+            {FOUNDER.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+            ))}
           </blockquote>
         </motion.section>
       </article>

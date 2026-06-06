@@ -18,10 +18,10 @@ export default function CategoryGrid() {
         <SectionHeading
           title="Our Product Range"
           subtitle={toTitleCase(
-            "five specialised categories for lifting, rigging & material handling"
+            "four specialised categories for lifting, rigging & material handling"
           )}
         />
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORIES.map((cat, index) => (
             <motion.li
               key={cat.slug}

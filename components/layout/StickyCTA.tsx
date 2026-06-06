@@ -2,17 +2,24 @@
 
 import { useState } from "react";
 import { FaWhatsapp, FaFacebook, FaInstagram } from "react-icons/fa";
-import { Mail } from "lucide-react";
+import { ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { branches, ctaLinks } from "@/data/branches";
 import { buildGeneralWhatsAppUrl } from "@/lib/whatsapp";
 
-export default function StickyCTA() {
-  const [waOpen, setWaOpen] = useState(false);
-  const [igOpen, setIgOpen] = useState(false);
-
+function CTAButtons({
+  waOpen,
+  setWaOpen,
+  igOpen,
+  setIgOpen,
+}: {
+  waOpen: boolean;
+  setWaOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+  igOpen: boolean;
+  setIgOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+}) {
   return (
-    <aside className="fixed right-4 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-2">
+    <>
       <section
         className="relative"
         onMouseEnter={() => setWaOpen(true)}
@@ -20,7 +27,7 @@ export default function StickyCTA() {
       >
         <button
           type="button"
-          onClick={() => setWaOpen(!waOpen)}
+          onClick={() => setWaOpen((prev) => !prev)}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:scale-110"
           aria-label="WhatsApp"
         >
@@ -55,9 +62,7 @@ export default function StickyCTA() {
                       className="mb-1 flex items-center justify-between rounded px-2 py-1 text-sm hover:bg-surface"
                     >
                       <span>{c.name}</span>
-                      <span className="font-medium text-[#25D366]">
-                        {c.display}
-                      </span>
+                      <span className="font-medium text-[#25D366]">{c.display}</span>
                     </a>
                   ))}
                 </motion.section>
@@ -84,7 +89,7 @@ export default function StickyCTA() {
       >
         <button
           type="button"
-          onClick={() => setIgOpen(!igOpen)}
+          onClick={() => setIgOpen((prev) => !prev)}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white shadow-lg transition hover:scale-110"
           aria-label="Instagram"
         >
@@ -129,6 +134,58 @@ export default function StickyCTA() {
       >
         <Mail className="h-5 w-5" />
       </a>
+    </>
+  );
+}
+
+export default function StickyCTA() {
+  const [waOpen, setWaOpen] = useState(false);
+  const [igOpen, setIgOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <aside className="fixed right-3 top-1/2 z-50 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-4">
+      <button
+        type="button"
+        onClick={() => setMobileOpen((prev) => !prev)}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/40 bg-accent text-primary shadow-lg transition hover:bg-accent-dark hover:text-white md:hidden"
+        aria-label={mobileOpen ? "Hide contact shortcuts" : "Show contact shortcuts"}
+        aria-expanded={mobileOpen}
+      >
+        {mobileOpen ? (
+          <ChevronRight className="h-5 w-5" />
+        ) : (
+          <ChevronLeft className="h-5 w-5" />
+        )}
+      </button>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            className="flex flex-col gap-2 md:hidden"
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 28 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CTAButtons
+              waOpen={waOpen}
+              setWaOpen={setWaOpen}
+              igOpen={igOpen}
+              setIgOpen={setIgOpen}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="hidden flex-col gap-2 md:flex">
+        <CTAButtons
+          waOpen={waOpen}
+          setWaOpen={setWaOpen}
+          igOpen={igOpen}
+          setIgOpen={setIgOpen}
+        />
+      </div>
     </aside>
   );
 }

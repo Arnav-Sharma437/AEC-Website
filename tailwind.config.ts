@@ -25,6 +25,7 @@ const config: Config = {
         display: ["var(--font-oswald)", "sans-serif"],
         body: ["var(--font-barlow)", "sans-serif"],
         condensed: ["var(--font-barlow-condensed)", "sans-serif"],
+        blackletter: ["var(--font-blackletter)", "serif"],
       },
       boxShadow: {
         nav: "0 2px 12px rgba(28, 43, 58, 0.08)",

@@ -25,7 +25,7 @@ interface AecLogoProps {
   priority?: boolean;
   /** Force light or dark asset (footer always uses dark on navy bg) */
   variant?: "light" | "dark" | "auto";
-  /** Show animated brand name with ® to the right of the logo */
+  /** Show brand name with ® to the right of the logo */
   showBrandName?: boolean;
 }
 
@@ -34,20 +34,15 @@ function AnimatedBrandName() {
 
   return (
     <motion.span
-      className="hidden min-[420px]:flex flex-col justify-center leading-tight"
-      initial={reduced ? false : { opacity: 0, x: 16 }}
+      className="hidden min-[480px]:flex max-w-[11rem] flex-col justify-center sm:max-w-none"
+      initial={reduced ? false : { opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: DURATION.medium, ease: EASE_OUT }}
       aria-label="Alamdaar Engineering Concern registered trademark"
     >
-      <span className="font-display text-sm font-bold uppercase tracking-[0.12em] sm:text-base">
-        <span className="animate-brand-shimmer bg-gradient-to-r from-accent via-[#e8c96a] to-accent bg-[length:200%_100%] bg-clip-text text-transparent">
-          Alamdaar
-        </span>
-      </span>
-      <span className="font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-primary dark:text-foreground sm:text-xs">
-        Engineering Concern
-        <sup className="ml-0.5 align-super text-[9px] font-bold leading-none text-accent">
+      <span className="font-blackletter text-[1.05rem] leading-[1.15] text-primary dark:text-foreground sm:text-xl md:text-[1.35rem]">
+        Alamdaar Engineering Concern
+        <sup className="ml-0.5 align-super font-display text-[9px] font-bold leading-none text-primary dark:text-foreground sm:text-[10px]">
           ®
         </sup>
       </span>
@@ -82,7 +77,7 @@ export default function AecLogo({
   }, [variant, resolvedTheme, mounted]);
 
   return (
-    <span className={cn("inline-flex items-center gap-2.5 sm:gap-3", className)}>
+    <span className={cn("inline-flex items-center gap-2 sm:gap-3", className)}>
       <Image
         src={imgSrc}
         alt="Alamdaar Engineering Concern"

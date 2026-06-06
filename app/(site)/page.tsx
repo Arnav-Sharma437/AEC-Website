@@ -4,6 +4,7 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import FactoryProduction from "@/components/home/FactoryProduction";
+import FounderPreview from "@/components/home/FounderPreview";
 import Testimonials from "@/components/home/Testimonials";
 import CTABanner from "@/components/home/CTABanner";
 
@@ -16,6 +17,7 @@ export default function HomePage() {
       <FeaturedProducts />
       <WhyChooseUs />
       <FactoryProduction />
+      <FounderPreview />
       <Testimonials />
       <CTABanner />
     </>

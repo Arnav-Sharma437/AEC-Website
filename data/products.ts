@@ -40,7 +40,7 @@ function createProduct(
     category: categoryName,
     categorySlug,
     description: toTitleCase(
-      `${name} — premium lifting, rigging and material handling equipment from alamdaar engineering concern (aec), howrah`
+      `${name} — premium industrial equipment from alamdaar engineering concern (aec), howrah`
     ),
     image: PRODUCT_PLACEHOLDER,
     price: "XXX",
@@ -51,48 +51,29 @@ function createProduct(
 type CatalogItem = { name: string; categorySlug: string };
 
 const catalog: CatalogItem[] = [
-  // Lifting Hardware & Rigging
-  { name: "D Shackle Screw Pin", categorySlug: "lifting-hardware-rigging" },
-  { name: "D Shackle Nut Bolt", categorySlug: "lifting-hardware-rigging" },
-  { name: "Bow Shackle Screw Pin", categorySlug: "lifting-hardware-rigging" },
-  { name: "Bow Shackle Nut Bolt", categorySlug: "lifting-hardware-rigging" },
-  { name: "Eye Bolt", categorySlug: "lifting-hardware-rigging" },
-  { name: "Eye Nut", categorySlug: "lifting-hardware-rigging" },
-  { name: "Turnbuckle", categorySlug: "lifting-hardware-rigging" },
-  { name: "Wire Rope Clip", categorySlug: "lifting-hardware-rigging" },
-  { name: "Thimble", categorySlug: "lifting-hardware-rigging" },
-  { name: "Ferrule", categorySlug: "lifting-hardware-rigging" },
-  { name: "Hook", categorySlug: "lifting-hardware-rigging" },
-  { name: "Swivel", categorySlug: "lifting-hardware-rigging" },
-  { name: "Chain Accessories", categorySlug: "lifting-hardware-rigging" },
-  // Hoists & Winches
-  { name: "Electric Wire Rope Hoist", categorySlug: "hoists-winches" },
-  { name: "Chain Hoist", categorySlug: "hoists-winches" },
-  { name: "Electric Chain Hoist", categorySlug: "hoists-winches" },
-  { name: "Mini Electric Hoist", categorySlug: "hoists-winches" },
-  { name: "Electric Winch", categorySlug: "hoists-winches" },
-  { name: "Manual Winch", categorySlug: "hoists-winches" },
-  { name: "Trolley", categorySlug: "hoists-winches" },
-  { name: "Hoist Spare Parts", categorySlug: "hoists-winches" },
+  // Lifting Solutions
+  { name: "Manual Chain Pulley Block", categorySlug: "lifting-solutions" },
+  { name: "Electric Chain Hoist", categorySlug: "lifting-solutions" },
+  { name: "Electric Wire Rope Hoist", categorySlug: "lifting-solutions" },
+  { name: "Ratchet Lever Hoist", categorySlug: "lifting-solutions" },
+  { name: "Pulling & Lifting Machine (Tirfor)", categorySlug: "lifting-solutions" },
+  { name: "Electric Winch", categorySlug: "lifting-solutions" },
+  { name: "Trolley", categorySlug: "lifting-solutions" },
+  { name: "Crane", categorySlug: "lifting-solutions" },
+  { name: "Pulley", categorySlug: "lifting-solutions" },
+  // Rigging & Lifting Accessories
+  { name: "Chains", categorySlug: "rigging-lifting-accessories" },
+  { name: "Webbing Sling", categorySlug: "rigging-lifting-accessories" },
+  { name: "Lifting Clamp", categorySlug: "rigging-lifting-accessories" },
+  { name: "Shackles", categorySlug: "rigging-lifting-accessories" },
+  { name: "Rigging Hardware", categorySlug: "rigging-lifting-accessories" },
   // Material Handling Equipment
-  { name: "Hand Pallet Truck", categorySlug: "material-handling-equipment" },
-  { name: "Hydraulic Hand Stacker", categorySlug: "material-handling-equipment" },
+  { name: "Hydraulic Pallet Truck", categorySlug: "material-handling-equipment" },
+  { name: "Manual Stacker", categorySlug: "material-handling-equipment" },
   { name: "Semi-Electric Stacker", categorySlug: "material-handling-equipment" },
-  { name: "Fully Electric Stacker", categorySlug: "material-handling-equipment" },
-  { name: "Electric Pallet Truck", categorySlug: "material-handling-equipment" },
-  { name: "Drum Handling Equipment", categorySlug: "material-handling-equipment" },
-  { name: "Platform Trolley", categorySlug: "material-handling-equipment" },
-  // Lashing & Cargo Control
-  { name: "Ratchet Lashing Belt", categorySlug: "lashing-cargo-control" },
-  { name: "Web Sling", categorySlug: "lashing-cargo-control" },
-  { name: "Round Sling", categorySlug: "lashing-cargo-control" },
-  { name: "Cargo Lashing", categorySlug: "lashing-cargo-control" },
-  { name: "Chain Sling", categorySlug: "lashing-cargo-control" },
-  // Wire Rope & Lifting Accessories
-  { name: "Wire Rope", categorySlug: "wire-rope-lifting-accessories" },
-  { name: "Wire Rope Sling", categorySlug: "wire-rope-lifting-accessories" },
-  { name: "Master Link", categorySlug: "wire-rope-lifting-accessories" },
-  { name: "Connecting Link", categorySlug: "wire-rope-lifting-accessories" },
+  { name: "Electric Stacker", categorySlug: "material-handling-equipment" },
+  { name: "Hand Pallet Truck", categorySlug: "material-handling-equipment" },
+  { name: "Material Handling Equipment", categorySlug: "material-handling-equipment" },
 ];
 
 export const products: Product[] = catalog.map((item) =>

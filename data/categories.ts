@@ -9,19 +9,18 @@ export interface Category {
 }
 
 export const BRAND_TAGLINE =
-  "AEC — Manufacturer & Supplier of Lifting, Rigging, Material Handling Equipment & Scaffolding/Mivan Shuttering Items";
+  "AEC — Manufacturer & Supplier of Lifting Solutions, Rigging Accessories, Material Handling Equipment & Scaffolding/Mivan Shuttering Items";
 
 export const CATEGORY_IMAGE_PLACEHOLDER = "/images/categories/category-placeholder.svg";
 
 export const CATEGORY_IMAGE_EXTENSIONS = [".png", ".jpg", ".webp"] as const;
 
-/** Upload Category-1 … Category-5 to /public/images/categories/ (png, jpg, or webp). */
+/** Upload Category-1 … Category-4 to /public/images/categories/ (png, jpg, or webp). */
 const CATEGORY_IMAGE_FILES: Record<string, string> = {
-  "lifting-hardware-rigging": "Category-1",
-  "hoists-winches": "Category-2",
+  "lifting-solutions": "Category-1",
+  "rigging-lifting-accessories": "Category-2",
   "material-handling-equipment": "Category-3",
-  "lashing-cargo-control": "Category-4",
-  "wire-rope-lifting-accessories": "Category-5",
+  "scaffolding-mivan-shuttering": "Category-4",
 };
 
 /** Legacy category slugs removed from catalogue (used by sync purge). */
@@ -38,6 +37,10 @@ export const REMOVED_CATEGORY_SLUGS = [
   "aec-exclusive",
   "lifting-equipment",
   "material-handling",
+  "lifting-hardware-rigging",
+  "hoists-winches",
+  "lashing-cargo-control",
+  "wire-rope-lifting-accessories",
 ] as const;
 
 const categoryData: {
@@ -46,34 +49,28 @@ const categoryData: {
   description: string;
 }[] = [
   {
-    name: "Lifting Hardware & Rigging",
-    slug: "lifting-hardware-rigging",
+    name: "Lifting Solutions",
+    slug: "lifting-solutions",
     description:
-      "shackles, eye bolts, turnbuckles, hooks, and rigging hardware for safe lifting",
+      "manual and electric hoists, winches, trolleys, cranes, and pulleys for safe lifting operations",
   },
   {
-    name: "Hoists & Winches",
-    slug: "hoists-winches",
+    name: "Rigging & Lifting Accessories",
+    slug: "rigging-lifting-accessories",
     description:
-      "electric and manual hoists, winches, trolleys, and hoist spare parts",
+      "chains, webbing slings, lifting clamps, shackles, and rigging hardware for secure loads",
   },
   {
     name: "Material Handling Equipment",
     slug: "material-handling-equipment",
     description:
-      "pallet trucks, stackers, drum handling, and platform trolleys",
+      "hydraulic pallet trucks, manual and electric stackers, and material handling solutions",
   },
   {
-    name: "Lashing & Cargo Control",
-    slug: "lashing-cargo-control",
+    name: "Scaffolding & Mivan Shuttering Items",
+    slug: "scaffolding-mivan-shuttering",
     description:
-      "ratchet lashings, web slings, round slings, and cargo securing gear",
-  },
-  {
-    name: "Wire Rope & Lifting Accessories",
-    slug: "wire-rope-lifting-accessories",
-    description:
-      "wire rope, slings, master links, and connecting links",
+      "complete range of scaffolding systems and mivan shuttering solutions for construction projects",
   },
 ];
 
