@@ -36,9 +36,19 @@ const config: Config = {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
+        "marquee-left": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "marquee-right": {
+          "0%": { transform: "translateX(-50%)" },
+          "100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         "brand-shimmer": "brand-shimmer 3.5s ease-in-out infinite",
+        "marquee-left": "marquee-left 36s linear infinite",
+        "marquee-right": "marquee-right 36s linear infinite",
       },
     },
   },

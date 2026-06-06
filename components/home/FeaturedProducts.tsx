@@ -9,7 +9,7 @@ import {
   FEATURED_PRODUCT_IDS,
 } from "@/data/featured";
 import { fetchPublicProducts } from "@/lib/products-api";
-import FeaturedProductCarousel from "@/components/home/FeaturedProductCarousel";
+import FeaturedMarqueeRow from "@/components/home/FeaturedMarqueeRow";
 import SectionHeading from "@/components/motion/SectionHeading";
 
 function orderFeatured(list: Product[], ids: readonly string[]): Product[] {
@@ -36,11 +36,11 @@ export default function FeaturedProducts() {
       .finally(() => setLoading(false));
   }, []);
 
-  const carousel1 = useMemo(
+  const row1 = useMemo(
     () => orderFeatured(featured, FEATURED_CAROUSEL_1_IDS),
     [featured]
   );
-  const carousel2 = useMemo(
+  const row2 = useMemo(
     () => orderFeatured(featured, FEATURED_CAROUSEL_2_IDS),
     [featured]
   );
@@ -55,14 +55,16 @@ export default function FeaturedProducts() {
         {loading ? (
           <p className="text-center text-muted">Loading featured products...</p>
         ) : (
-          <div className="space-y-14 md:space-y-16">
-            <FeaturedProductCarousel
+          <div className="space-y-12 md:space-y-14">
+            <FeaturedMarqueeRow
               title="Lifting & Hoisting Solutions"
-              products={carousel1}
+              products={row1}
+              direction="left"
             />
-            <FeaturedProductCarousel
+            <FeaturedMarqueeRow
               title="Handling & Rigging Essentials"
-              products={carousel2}
+              products={row2}
+              direction="right"
             />
           </div>
         )}

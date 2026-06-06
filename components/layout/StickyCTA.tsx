@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaWhatsapp, FaFacebook, FaInstagram } from "react-icons/fa";
 import { ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { branches, ctaLinks } from "@/data/branches";
 import { buildGeneralWhatsAppUrl } from "@/lib/whatsapp";
 
-const MOBILE_SLIDE_TRANSITION = { duration: 0.3, ease: "easeInOut" } as const;
+const SLIDE = { duration: 0.3, ease: "easeInOut" } as const;
 
 function CTAButtons({
   waOpen,
@@ -143,22 +143,14 @@ function CTAButtons({
 export default function StickyCTA() {
   const [waOpen, setWaOpen] = useState(false);
   const [igOpen, setIgOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(true);
-  const lastScrollY = useRef(0);
+  const [mobileVisible, setMobileVisible] = useState(true);
 
   useEffect(() => {
-    lastScrollY.current = window.scrollY;
-
     function handleScroll() {
       if (window.matchMedia("(min-width: 768px)").matches) return;
-
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current) {
-        setMobileOpen(false);
-        setWaOpen(false);
-        setIgOpen(false);
-      }
-      lastScrollY.current = currentScrollY;
+      setMobileVisible(false);
+      setWaOpen(false);
+      setIgOpen(false);
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -166,31 +158,28 @@ export default function StickyCTA() {
   }, []);
 
   function toggleMobile() {
-    setMobileOpen((prev) => {
-      const next = !prev;
-      if (!next) {
+    setMobileVisible((prev) => {
+      if (prev) {
         setWaOpen(false);
         setIgOpen(false);
       }
-      return next;
+      return !prev;
     });
   }
 
   return (
     <aside className="fixed right-3 top-1/2 z-50 -translate-y-1/2 sm:right-4">
-      {/* Mobile: CTAs slide away; toggle arrow always stays visible on the side */}
       <div className="flex items-center gap-2 md:hidden">
         <motion.div
-          className="flex flex-col gap-2 overflow-hidden"
+          className="flex flex-col gap-2"
           initial={false}
           animate={{
-            maxWidth: mobileOpen ? 48 : 0,
-            opacity: mobileOpen ? 1 : 0,
-            x: mobileOpen ? 0 : 24,
+            x: mobileVisible ? 0 : 56,
+            opacity: mobileVisible ? 1 : 0,
           }}
-          transition={MOBILE_SLIDE_TRANSITION}
-          style={{ pointerEvents: mobileOpen ? "auto" : "none" }}
-          aria-hidden={!mobileOpen}
+          transition={SLIDE}
+          style={{ pointerEvents: mobileVisible ? "auto" : "none" }}
+          aria-hidden={!mobileVisible}
         >
           <CTAButtons
             waOpen={waOpen}
@@ -204,10 +193,10 @@ export default function StickyCTA() {
           type="button"
           onClick={toggleMobile}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent text-primary shadow-lg transition hover:bg-accent-dark hover:text-white"
-          aria-label={mobileOpen ? "Hide contact shortcuts" : "Show contact shortcuts"}
-          aria-expanded={mobileOpen}
+          aria-label={mobileVisible ? "Hide contact shortcuts" : "Show contact shortcuts"}
+          aria-expanded={mobileVisible}
         >
-          {mobileOpen ? (
+          {mobileVisible ? (
             <ChevronLeft className="h-5 w-5" aria-hidden />
           ) : (
             <ChevronRight className="h-5 w-5" aria-hidden />
@@ -215,7 +204,6 @@ export default function StickyCTA() {
         </button>
       </div>
 
-      {/* Desktop: unchanged */}
       <div className="hidden flex-col gap-2 md:flex">
         <CTAButtons
           waOpen={waOpen}
