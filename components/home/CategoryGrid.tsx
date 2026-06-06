@@ -41,7 +41,7 @@ export default function CategoryGrid() {
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-800">
                   <CategoryImage
-                    src={cat.image}
+                    imageFile={cat.imageFile}
                     alt={cat.name}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />

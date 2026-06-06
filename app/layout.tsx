@@ -29,8 +29,9 @@ export const metadata: Metadata = {
   description:
     "AEC — Manufacturer & Supplier of Lifting, Rigging, Material Handling Equipment & Scaffolding/Mivan Shuttering Items. Shackles, Hoists, Winches, Pallet Trucks & Lashings. Howrah, West Bengal — Pan India.",
   icons: {
-    icon: "/images/logo/aec-logo.png",
-    apple: "/images/logo/aec-logo.png",
+    icon: [{ url: "/icon.png", type: "image/png" }],
+    shortcut: [{ url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/icon.png", type: "image/png" }],
   },
 };
 

@@ -3,7 +3,8 @@ import { toTitleCase } from "@/lib/title-case";
 export interface Category {
   name: string;
   slug: string;
-  image: string;
+  /** Basename in /public/images/categories/ (e.g. Category-1) — extension resolved at runtime */
+  imageFile: string;
   description: string;
 }
 
@@ -12,18 +13,15 @@ export const BRAND_TAGLINE =
 
 export const CATEGORY_IMAGE_PLACEHOLDER = "/images/categories/category-placeholder.svg";
 
-/** Runtime-only Unsplash URLs (loaded client-side via img tags, not at build time) */
-const CATEGORY_IMAGES: Record<string, string> = {
-  "lifting-hardware-rigging":
-    "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=900&q=80&auto=format&fit=crop",
-  "hoists-winches":
-    "https://images.unsplash.com/photo-1565793298595-6a879b1d9492?w=900&q=80&auto=format&fit=crop",
-  "material-handling-equipment":
-    "https://images.unsplash.com/photo-1586528116311-ad8dd90c95d2?w=900&q=80&auto=format&fit=crop",
-  "lashing-cargo-control":
-    "https://images.unsplash.com/photo-1605742843121-48a004209f96?w=900&q=80&auto=format&fit=crop",
-  "wire-rope-lifting-accessories":
-    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=900&q=80&auto=format&fit=crop",
+export const CATEGORY_IMAGE_EXTENSIONS = [".png", ".jpg", ".webp"] as const;
+
+/** Upload Category-1 … Category-5 to /public/images/categories/ (png, jpg, or webp). */
+const CATEGORY_IMAGE_FILES: Record<string, string> = {
+  "lifting-hardware-rigging": "Category-1",
+  "hoists-winches": "Category-2",
+  "material-handling-equipment": "Category-3",
+  "lashing-cargo-control": "Category-4",
+  "wire-rope-lifting-accessories": "Category-5",
 };
 
 /** Legacy category slugs removed from catalogue (used by sync purge). */
@@ -81,7 +79,7 @@ const categoryData: {
 
 export const CATEGORIES: Category[] = categoryData.map((c) => ({
   ...c,
-  image: CATEGORY_IMAGES[c.slug] ?? CATEGORY_IMAGE_PLACEHOLDER,
+  imageFile: CATEGORY_IMAGE_FILES[c.slug] ?? "Category-1",
   description: toTitleCase(c.description),
 }));
 
