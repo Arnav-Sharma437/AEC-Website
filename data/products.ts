@@ -1,4 +1,9 @@
-import { CATEGORIES } from "./categories";
+import {
+  CATEGORIES,
+  SUB_CATEGORIES,
+  slugifyCatalogName,
+  type SubCategory,
+} from "./categories";
 import { FEATURED_PRODUCT_IDS } from "./featured";
 import { toTitleCase } from "@/lib/title-case";
 
@@ -9,6 +14,8 @@ export interface Product {
   name: string;
   category: string;
   categorySlug: string;
+  subCategory: string;
+  subCategorySlug: string;
   description: string;
   image: string;
   price: string;
@@ -17,21 +24,16 @@ export interface Product {
 
 const featuredSet = new Set<string>(FEATURED_PRODUCT_IDS);
 
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 function createProduct(
   name: string,
   categorySlug: string,
+  subCategorySlug: string,
+  subCategoryName: string,
   featured?: boolean
 ): Product {
   const category = CATEGORIES.find((c) => c.slug === categorySlug);
   const categoryName = category?.name ?? categorySlug;
-  const id = `${categorySlug}-${slugify(name)}`;
+  const id = `${categorySlug}-${subCategorySlug}-${slugifyCatalogName(name)}`;
   const isFeatured = featured ?? featuredSet.has(id);
 
   return {
@@ -39,6 +41,8 @@ function createProduct(
     name,
     category: categoryName,
     categorySlug,
+    subCategory: subCategoryName,
+    subCategorySlug,
     description: toTitleCase(
       `${name} — premium industrial equipment from alamdaar engineering concern (aec), howrah`
     ),
@@ -48,41 +52,19 @@ function createProduct(
   };
 }
 
-type CatalogItem = { name: string; categorySlug: string };
+/** Default catalogue: one primary product line per sub-category. */
+function buildDefaultCatalog(): Product[] {
+  return SUB_CATEGORIES.map((sub: SubCategory) =>
+    createProduct(sub.name, sub.categorySlug, sub.slug, sub.name)
+  );
+}
 
-const catalog: CatalogItem[] = [
-  // Lifting Solutions
-  { name: "Manual Chain Pulley Block", categorySlug: "lifting-solutions" },
-  { name: "Electric Chain Hoist", categorySlug: "lifting-solutions" },
-  { name: "Electric Wire Rope Hoist", categorySlug: "lifting-solutions" },
-  { name: "Ratchet Lever Hoist", categorySlug: "lifting-solutions" },
-  { name: "Pulling & Lifting Machine (Tirfor)", categorySlug: "lifting-solutions" },
-  { name: "Electric Winch", categorySlug: "lifting-solutions" },
-  { name: "Trolley", categorySlug: "lifting-solutions" },
-  { name: "Crane", categorySlug: "lifting-solutions" },
-  { name: "Pulley", categorySlug: "lifting-solutions" },
-  // Rigging & Lifting Accessories
-  { name: "Chains", categorySlug: "rigging-lifting-accessories" },
-  { name: "Webbing Sling", categorySlug: "rigging-lifting-accessories" },
-  { name: "Lifting Clamp", categorySlug: "rigging-lifting-accessories" },
-  { name: "Shackles", categorySlug: "rigging-lifting-accessories" },
-  { name: "Rigging Hardware", categorySlug: "rigging-lifting-accessories" },
-  // Material Handling Equipment
-  { name: "Hydraulic Pallet Truck", categorySlug: "material-handling-equipment" },
-  { name: "Manual Stacker", categorySlug: "material-handling-equipment" },
-  { name: "Semi-Electric Stacker", categorySlug: "material-handling-equipment" },
-  { name: "Electric Stacker", categorySlug: "material-handling-equipment" },
-  { name: "Hand Pallet Truck", categorySlug: "material-handling-equipment" },
-  { name: "Material Handling Equipment", categorySlug: "material-handling-equipment" },
-];
-
-export const products: Product[] = catalog.map((item) =>
-  createProduct(item.name, item.categorySlug)
-);
+export const products: Product[] = buildDefaultCatalog();
 
 export const PRODUCT_COUNT = products.length;
 
 export const VALID_CATEGORY_SLUGS = CATEGORIES.map((c) => c.slug);
+export const VALID_SUB_CATEGORY_SLUGS = SUB_CATEGORIES.map((s) => s.slug);
 export const VALID_PRODUCT_SLUGS = products.map((p) => p.id);
 
 export function getFeaturedProducts() {
@@ -97,12 +79,19 @@ export function getProductsByCategory(slug?: string) {
   return products.filter((p) => p.categorySlug === slug);
 }
 
+export function getProductsBySubCategory(categorySlug: string, subCategorySlug: string) {
+  return products.filter(
+    (p) => p.categorySlug === categorySlug && p.subCategorySlug === subCategorySlug
+  );
+}
+
 export function searchProducts(query: string) {
   const q = query.toLowerCase();
   return products.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
+      p.subCategory.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q)
   );
 }

@@ -34,6 +34,8 @@ interface Product {
   name: string;
   category: string;
   categoryName: string;
+  subCategory: string;
+  subCategoryName: string;
   price: string;
   image: string;
   inStock: boolean;
@@ -372,6 +374,9 @@ export default function ProductsManager() {
                       Category
                     </th>
                     <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Sub-Category
+                    </th>
+                    <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Price
                     </th>
                     <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -421,6 +426,7 @@ export default function ProductsManager() {
                         )}
                       </td>
                       <td className="px-5 py-4 text-slate-600">{p.categoryName}</td>
+                      <td className="px-5 py-4 text-slate-600">{p.subCategoryName}</td>
                       <td className="px-5 py-4 font-medium text-slate-800">
                         {quickEditRow === p._id && quickEditDraft ? (
                           <input
@@ -591,6 +597,7 @@ export default function ProductsManager() {
                 _id: editProduct._id,
                 name: editProduct.name,
                 category: editProduct.category,
+                subCategory: editProduct.subCategory,
                 description: editProduct.description || "",
                 price: editProduct.price,
                 image: editProduct.image,
@@ -616,7 +623,9 @@ export default function ProductsManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
             <h3 className="text-lg font-bold text-slate-900">{viewProduct.name}</h3>
-            <p className="text-sm text-slate-500">{viewProduct.categoryName}</p>
+            <p className="text-sm text-slate-500">
+              {viewProduct.categoryName} · {viewProduct.subCategoryName}
+            </p>
             {viewProduct.image && (
               <Image
                 src={viewProduct.image}

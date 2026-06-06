@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
 import { requireAdminSession } from "@/lib/admin-api";
 import { slugify } from "@/lib/slug";
-import { CATEGORIES } from "@/data/categories";
+import { CATEGORIES, getSubCategoryBySlug } from "@/data/categories";
 import { normalizeStockFields } from "@/lib/product-stock";
 
 export async function GET(request: NextRequest) {
@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
         { categoryName: { $regex: search, $options: "i" } },
+        { subCategoryName: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -61,6 +62,11 @@ export async function POST(request: Request) {
     await connectDB();
 
     const category = CATEGORIES.find((c) => c.slug === body.category);
+    const sub = getSubCategoryBySlug(body.category, body.subCategory);
+    if (!sub) {
+      return NextResponse.json({ error: "Invalid sub-category" }, { status: 400 });
+    }
+
     let slug = slugify(body.name);
     const existing = await Product.findOne({ slug });
     if (existing) slug = `${slug}-${Date.now()}`;
@@ -75,6 +81,8 @@ export async function POST(request: Request) {
       slug,
       category: body.category,
       categoryName: category?.name || body.category,
+      subCategory: sub.slug,
+      subCategoryName: sub.name,
       description: body.description || "",
       image: body.image || "",
       imagePublicId: body.imagePublicId || "",

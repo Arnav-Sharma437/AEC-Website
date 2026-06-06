@@ -25,8 +25,10 @@ interface AecLogoProps {
   priority?: boolean;
   /** Force light or dark asset (footer always uses dark on navy bg) */
   variant?: "light" | "dark" | "auto";
-  /** Show brand name with ® to the right of the logo */
+  /** Show brand name to the right of the logo */
   showBrandName?: boolean;
+  /** Show ® mark on the logo image (navbar) */
+  showRegisteredMark?: boolean;
 }
 
 function AnimatedBrandName() {
@@ -34,17 +36,14 @@ function AnimatedBrandName() {
 
   return (
     <motion.span
-      className="hidden min-[480px]:flex max-w-[11rem] flex-col justify-center sm:max-w-none"
+      className="hidden min-[480px]:flex max-w-[12rem] flex-col justify-center sm:max-w-none"
       initial={reduced ? false : { opacity: 0, x: 12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-      aria-label="Alamdaar Engineering Concern registered trademark"
+      aria-label="Alamdaar Engineering Concern"
     >
-      <span className="font-blackletter text-[1.05rem] leading-[1.15] text-primary dark:text-foreground sm:text-xl md:text-[1.35rem]">
+      <span className="font-blackletter text-[1.15rem] leading-[1.2] tracking-[0.06em] text-primary antialiased dark:text-foreground sm:text-[1.35rem] md:text-[1.45rem]">
         Alamdaar Engineering Concern
-        <sup className="ml-0.5 align-super font-display text-[9px] font-bold leading-none text-primary dark:text-foreground sm:text-[10px]">
-          ®
-        </sup>
       </span>
     </motion.span>
   );
@@ -56,6 +55,7 @@ export default function AecLogo({
   priority = false,
   variant = "auto",
   showBrandName = false,
+  showRegisteredMark = false,
 }: AecLogoProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -78,17 +78,27 @@ export default function AecLogo({
 
   return (
     <span className={cn("inline-flex items-center gap-2 sm:gap-3", className)}>
-      <Image
-        src={imgSrc}
-        alt="Alamdaar Engineering Concern"
-        width={232}
-        height={290}
-        quality={100}
-        unoptimized
-        priority={priority}
-        onError={() => setImgSrc(LOGO_FALLBACK)}
-        className={cn("shrink-0 object-contain", sizeClasses[size])}
-      />
+      <span className="relative shrink-0">
+        <Image
+          src={imgSrc}
+          alt="Alamdaar Engineering Concern"
+          width={232}
+          height={290}
+          quality={100}
+          unoptimized
+          priority={priority}
+          onError={() => setImgSrc(LOGO_FALLBACK)}
+          className={cn("object-contain", sizeClasses[size])}
+        />
+        {showRegisteredMark && (
+          <sup
+            className="absolute -right-0.5 top-0 font-display text-[10px] font-bold leading-none text-primary dark:text-foreground sm:text-[11px]"
+            aria-label="Registered trademark"
+          >
+            ®
+          </sup>
+        )}
+      </span>
       {showBrandName && <AnimatedBrandName />}
     </span>
   );

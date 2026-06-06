@@ -54,7 +54,7 @@ export default function ProductCard({
       </figure>
       <section className="flex flex-1 flex-col p-3 sm:p-4">
         <span className="mb-2 inline-block w-fit max-w-full truncate rounded-md bg-surface px-2 py-0.5 font-condensed text-[10px] font-semibold uppercase tracking-wide text-muted sm:text-xs">
-          {product.category}
+          {product.subCategory}
         </span>
         <h3 className="mb-2 line-clamp-2 flex-1 font-display text-sm font-semibold leading-snug text-primary dark:text-foreground sm:text-base">
           {product.name}

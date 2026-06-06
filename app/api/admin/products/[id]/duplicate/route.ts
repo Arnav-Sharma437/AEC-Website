@@ -25,6 +25,8 @@ export async function POST(_req: Request, { params }: Params) {
       slug,
       category: original.category,
       categoryName: original.categoryName,
+      subCategory: original.subCategory,
+      subCategoryName: original.subCategoryName,
       description: original.description,
       image: original.image,
       imagePublicId: "",

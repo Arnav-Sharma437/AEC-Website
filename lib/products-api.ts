@@ -16,11 +16,19 @@ export function resolveProductImage(image?: string | null): string {
 
 export function mapApiProduct(p: Record<string, unknown>): Product {
   const rawImage = p.image as string | undefined;
+  const categorySlug = String(p.category ?? "");
+  const subCategorySlug = String(p.subCategory ?? "");
+  const subCategoryName = String(
+    p.subCategoryName ?? p.subCategory ?? subCategorySlug.replace(/-/g, " ")
+  );
+
   return {
-    id: String(p._id ?? p.slug ?? p.id ?? ""),
+    id: String(p.slug ?? p._id ?? p.id ?? ""),
     name: String(p.name ?? ""),
     category: String(p.categoryName ?? p.category ?? ""),
-    categorySlug: String(p.category ?? ""),
+    categorySlug,
+    subCategory: subCategoryName,
+    subCategorySlug,
     description: String(p.description ?? ""),
     image: resolveProductImage(rawImage),
     price: String(p.price ?? "XXX"),

@@ -6,6 +6,7 @@ import {
   products as staticProducts,
   VALID_PRODUCT_SLUGS,
   VALID_CATEGORY_SLUGS,
+  VALID_SUB_CATEGORY_SLUGS,
 } from "@/data/products";
 import { REMOVED_CATEGORY_SLUGS } from "@/data/categories";
 
@@ -25,6 +26,8 @@ export async function POST() {
           slug: p.id,
           category: p.categorySlug,
           categoryName: p.category,
+          subCategory: p.subCategorySlug,
+          subCategoryName: p.subCategory,
           description: p.description,
           image: p.image,
           price: p.price,
@@ -41,6 +44,7 @@ export async function POST() {
       $or: [
         { slug: { $nin: VALID_PRODUCT_SLUGS } },
         { category: { $nin: VALID_CATEGORY_SLUGS } },
+        { subCategory: { $nin: VALID_SUB_CATEGORY_SLUGS } },
         { category: { $in: [...REMOVED_CATEGORY_SLUGS] } },
       ],
     });

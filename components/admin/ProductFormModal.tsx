@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
-import { CATEGORIES } from "@/data/categories";
+import {
+  CATEGORIES,
+  getSubCategoriesByCategory,
+  isEnquiryOnlyCategory,
+} from "@/data/categories";
 import { uploadWithProgress } from "@/lib/admin-upload-client";
 import { resolveProductImage, PRODUCT_PLACEHOLDER } from "@/lib/products-api";
 import { normalizeStockFields } from "@/lib/product-stock";
@@ -14,6 +18,7 @@ export interface ProductFormData {
   _id?: string;
   name: string;
   category: string;
+  subCategory: string;
   description: string;
   price: string;
   image: string;
@@ -30,9 +35,13 @@ interface ProductFormModalProps {
   title: string;
 }
 
+const PRODUCT_CATEGORIES = CATEGORIES.filter((c) => !isEnquiryOnlyCategory(c.slug));
+
 const empty: ProductFormData = {
   name: "",
-  category: CATEGORIES[0]?.slug || "material-handling",
+  category: PRODUCT_CATEGORIES[0]?.slug || "lifting-solutions",
+  subCategory: getSubCategoriesByCategory(PRODUCT_CATEGORIES[0]?.slug || "lifting-solutions")[0]
+    ?.slug || "",
   description: "",
   price: "XXX",
   image: "",
@@ -58,12 +67,23 @@ export default function ProductFormModal({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const subCategoryOptions = useMemo(
+    () => getSubCategoriesByCategory(form.category),
+    [form.category]
+  );
+
   useEffect(() => {
     if (!open) return;
     const next = initial || empty;
     setForm(next);
     setImagePreview(next.image ? resolveProductImage(next.image) : "");
   }, [open, initial]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (subCategoryOptions.some((s) => s.slug === form.subCategory)) return;
+    setForm((f) => ({ ...f, subCategory: subCategoryOptions[0]?.slug || "" }));
+  }, [form.subCategory, open, subCategoryOptions]);
 
   function updateStock(patch: { quantity?: number; inStock?: boolean }) {
     const stock = normalizeStockFields(patch, {
@@ -101,6 +121,10 @@ export default function ProductFormModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.subCategory) {
+      toast("Please select a sub-category", "error");
+      return;
+    }
     const stock = normalizeStockFields(
       { quantity: form.quantity, inStock: form.inStock },
       { quantity: form.quantity, inStock: form.inStock }
@@ -137,15 +161,36 @@ export default function ProductFormModal({
             />
           </label>
           <label className="block text-sm font-medium text-gray-800">
-            Category *
+            Main Category *
             <select
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  category: e.target.value,
+                  subCategory: getSubCategoriesByCategory(e.target.value)[0]?.slug || "",
+                })
+              }
               className={fieldClass}
             >
-              {CATEGORIES.map((c) => (
+              {PRODUCT_CATEGORIES.map((c) => (
                 <option key={c.slug} value={c.slug}>
                   {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm font-medium text-gray-800">
+            Sub-Category *
+            <select
+              required
+              value={form.subCategory}
+              onChange={(e) => setForm({ ...form, subCategory: e.target.value })}
+              className={fieldClass}
+            >
+              {subCategoryOptions.map((s) => (
+                <option key={s.slug} value={s.slug}>
+                  {s.name}
                 </option>
               ))}
             </select>
@@ -232,4 +277,3 @@ export default function ProductFormModal({
     </div>
   );
 }
-

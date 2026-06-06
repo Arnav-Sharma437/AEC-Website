@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import { Product } from "@/models/Product";
 import { requireAdminSession } from "@/lib/admin-api";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
-import { CATEGORIES } from "@/data/categories";
+import { CATEGORIES, getSubCategoryBySlug } from "@/data/categories";
 import { normalizeStockFields } from "@/lib/product-stock";
 
 type Params = { params: { id: string } };
@@ -39,12 +39,19 @@ export async function PUT(request: Request, { params }: Params) {
     );
 
     const category = CATEGORIES.find((c) => c.slug === body.category);
+    const sub = getSubCategoryBySlug(body.category, body.subCategory);
+    if (!sub) {
+      return NextResponse.json({ error: "Invalid sub-category" }, { status: 400 });
+    }
+
     const product = await Product.findByIdAndUpdate(
       params.id,
       {
         name: body.name,
         category: body.category,
         categoryName: category?.name || body.category,
+        subCategory: sub.slug,
+        subCategoryName: sub.name,
         description: body.description,
         image: body.image,
         imagePublicId: body.imagePublicId,
