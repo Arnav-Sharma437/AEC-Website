@@ -1,8 +1,12 @@
 export type HeroSlot = "video" | `image-${number}`;
 
+export type HeroVariant = "desktop" | "mobile";
+
 export interface HeroAsset {
   url: string;
   publicId: string;
+  mobileUrl: string;
+  mobilePublicId: string;
   heading: string;
   subheading: string;
   buttonText: string;
@@ -17,16 +21,22 @@ export interface HeroData {
 export interface HeroSlide {
   type: "video" | "image";
   src: string;
+  mobileSrc?: string;
   heading: string;
   subheading: string;
   buttonText: string;
   buttonLink: string;
 }
 
+const DESKTOP_WIDTH = 1920;
+const MOBILE_WIDTH = 828;
+
 function parseAsset(raw: Record<string, unknown> | undefined): HeroAsset {
   return {
     url: String(raw?.url ?? "").trim(),
     publicId: String(raw?.publicId ?? "").trim(),
+    mobileUrl: String(raw?.mobileUrl ?? "").trim(),
+    mobilePublicId: String(raw?.mobilePublicId ?? "").trim(),
     heading: String(raw?.heading ?? "").trim(),
     subheading: String(raw?.subheading ?? "").trim(),
     buttonText: String(raw?.buttonText ?? "").trim(),
@@ -46,6 +56,10 @@ function imagesFromLegacy(doc: Record<string, unknown>): HeroAsset[] {
 
 export function imageSlot(index: number): HeroSlot {
   return `image-${index}`;
+}
+
+export function mobilePendingKey(slot: string): string {
+  return `${slot}:mobile`;
 }
 
 export function parseHeroSlot(
@@ -74,19 +88,42 @@ export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData 
   return { video, images };
 }
 
+/** Lighter Cloudinary delivery URLs for faster hero loads. */
+export function optimizeHeroDeliveryUrl(
+  url: string,
+  target: "desktop" | "mobile"
+): string {
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+  const width = target === "mobile" ? MOBILE_WIDTH : DESKTOP_WIDTH;
+  const transforms = `f_auto,q_auto:good,w_${width},c_limit`;
+  const marker = "/upload/";
+  const idx = url.indexOf(marker);
+  if (idx === -1) return url;
+  const after = url.slice(idx + marker.length);
+  if (after.startsWith("f_auto,") || after.startsWith("q_auto,")) return url;
+  return `${url.slice(0, idx + marker.length)}${transforms}/${after}`;
+}
+
 export function assetToSlide(
   type: "video" | "image",
   asset: HeroAsset
 ): HeroSlide | null {
   if (!asset.url) return null;
-  return {
+  const slide: HeroSlide = {
     type,
-    src: asset.url,
+    src:
+      type === "image"
+        ? optimizeHeroDeliveryUrl(asset.url, "desktop")
+        : asset.url,
     heading: asset.heading,
     subheading: asset.subheading,
     buttonText: asset.buttonText,
     buttonLink: asset.buttonLink,
   };
+  if (asset.mobileUrl) {
+    slide.mobileSrc = optimizeHeroDeliveryUrl(asset.mobileUrl, "mobile");
+  }
+  return slide;
 }
 
 export function heroToSlides(hero: HeroData): HeroSlide[] {
@@ -103,6 +140,8 @@ export function heroToSlides(hero: HeroData): HeroSlide[] {
 export const EMPTY_HERO_ASSET: HeroAsset = {
   url: "",
   publicId: "",
+  mobileUrl: "",
+  mobilePublicId: "",
   heading: "",
   subheading: "",
   buttonText: "",

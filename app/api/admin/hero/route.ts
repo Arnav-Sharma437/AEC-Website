@@ -8,6 +8,7 @@ import {
   parseHeroSlot,
   EMPTY_HERO_ASSET,
   type HeroAsset,
+  type HeroVariant,
 } from "@/lib/hero-utils";
 
 async function getOrCreateHero() {
@@ -39,6 +40,64 @@ function persistImages(hero: InstanceType<typeof HeroSettings>, images: HeroAsse
   hero.set("image3", undefined);
 }
 
+async function clearMobileAsset(asset: HeroAsset): Promise<HeroAsset> {
+  if (asset.mobilePublicId) {
+    await deleteFromCloudinary(asset.mobilePublicId, "image");
+  }
+  return { ...asset, mobileUrl: "", mobilePublicId: "" };
+}
+
+async function clearDesktopAsset(
+  asset: HeroAsset,
+  resourceType: "image" | "video"
+): Promise<HeroAsset> {
+  if (asset.publicId) {
+    await deleteFromCloudinary(asset.publicId, resourceType);
+  }
+  if (asset.mobilePublicId) {
+    await deleteFromCloudinary(asset.mobilePublicId, "image");
+  }
+  return { ...EMPTY_HERO_ASSET };
+}
+
+function updateDesktopAsset(
+  current: HeroAsset,
+  copy: ReturnType<typeof copyFields>,
+  url?: string,
+  publicId?: string
+): HeroAsset {
+  if (url?.trim() && publicId?.trim()) {
+    return {
+      ...current,
+      url: url.trim(),
+      publicId: publicId.trim(),
+      heading: copy.heading ?? current.heading,
+      subheading: copy.subheading ?? current.subheading,
+      buttonText: copy.buttonText ?? current.buttonText,
+      buttonLink: copy.buttonLink ?? current.buttonLink,
+    };
+  }
+  return {
+    ...current,
+    heading: copy.heading ?? current.heading,
+    subheading: copy.subheading ?? current.subheading,
+    buttonText: copy.buttonText ?? current.buttonText,
+    buttonLink: copy.buttonLink ?? current.buttonLink,
+  };
+}
+
+function updateMobileAsset(
+  current: HeroAsset,
+  url: string,
+  publicId: string
+): HeroAsset {
+  return {
+    ...current,
+    mobileUrl: url.trim(),
+    mobilePublicId: publicId.trim(),
+  };
+}
+
 export async function GET() {
   const { error } = await requireAdminSession();
   if (error) return error;
@@ -59,11 +118,12 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { slot, url, publicId, action } = body as {
+    const { slot, url, publicId, action, variant } = body as {
       slot?: string;
       url?: string;
       publicId?: string;
-      action?: "delete" | "add";
+      action?: "delete" | "add" | "delete-mobile";
+      variant?: HeroVariant;
     };
 
     if (action === "add") {
@@ -91,38 +151,31 @@ export async function PUT(request: NextRequest) {
     const hero = await getOrCreateHero();
     const normalized = normalizeHeroDoc(hero.toObject() as Record<string, unknown>);
     const copy = copyFields(body);
+    const isMobileVariant = variant === "mobile";
 
     if (parsed.type === "video") {
-      const current = normalized.video;
+      let next = normalized.video;
 
-      if (action === "delete") {
-        if (current.publicId) {
-          await deleteFromCloudinary(current.publicId, "video");
-        }
-        hero.set("video", { ...EMPTY_HERO_ASSET });
-        hero.markModified("video");
-      } else if (url?.trim() && publicId?.trim()) {
-        if (current.publicId && publicId !== current.publicId) {
-          await deleteFromCloudinary(current.publicId, "video");
-        }
-        const next: HeroAsset = {
-          url: url.trim(),
-          publicId: publicId.trim(),
-          heading: copy.heading ?? current.heading,
-          subheading: copy.subheading ?? current.subheading,
-          buttonText: copy.buttonText ?? current.buttonText,
-          buttonLink: copy.buttonLink ?? current.buttonLink,
-        };
+      if (action === "delete-mobile") {
+        next = await clearMobileAsset(next);
         hero.set("video", next);
         hero.markModified("video");
-      } else {
-        const next: HeroAsset = {
-          ...current,
-          heading: copy.heading ?? current.heading,
-          subheading: copy.subheading ?? current.subheading,
-          buttonText: copy.buttonText ?? current.buttonText,
-          buttonLink: copy.buttonLink ?? current.buttonLink,
-        };
+      } else if (action === "delete") {
+        next = await clearDesktopAsset(next, "video");
+        hero.set("video", next);
+        hero.markModified("video");
+      } else if (isMobileVariant && url?.trim() && publicId?.trim()) {
+        if (next.mobilePublicId && publicId !== next.mobilePublicId) {
+          await deleteFromCloudinary(next.mobilePublicId, "image");
+        }
+        next = updateMobileAsset(next, url, publicId);
+        hero.set("video", next);
+        hero.markModified("video");
+      } else if (!isMobileVariant) {
+        if (url?.trim() && publicId?.trim() && next.publicId && publicId !== next.publicId) {
+          await deleteFromCloudinary(next.publicId, "video");
+        }
+        next = updateDesktopAsset(next, copy, url, publicId);
         if (!next.url) {
           return NextResponse.json(
             { error: "Upload media before saving slide text" },
@@ -131,6 +184,8 @@ export async function PUT(request: NextRequest) {
         }
         hero.set("video", next);
         hero.markModified("video");
+      } else {
+        return NextResponse.json({ error: "Upload mobile banner first" }, { status: 400 });
       }
     } else {
       const index = parsed.index;
@@ -140,43 +195,43 @@ export async function PUT(request: NextRequest) {
         images.push({ ...EMPTY_HERO_ASSET });
       }
 
-      const current = images[index];
+      let current = images[index];
 
-      if (action === "delete") {
-        if (current.publicId) {
-          await deleteFromCloudinary(current.publicId, "image");
-        }
+      if (action === "delete-mobile") {
+        current = await clearMobileAsset(current);
+        images[index] = current;
+        persistImages(hero, images);
+      } else if (action === "delete") {
+        current = await clearDesktopAsset(current, "image");
         images.splice(index, 1);
         persistImages(hero, images);
-      } else if (url?.trim() && publicId?.trim()) {
-        if (current.publicId && publicId !== current.publicId) {
+      } else if (isMobileVariant && url?.trim() && publicId?.trim()) {
+        if (!current.url) {
+          return NextResponse.json(
+            { error: "Upload desktop banner before adding mobile" },
+            { status: 400 }
+          );
+        }
+        if (current.mobilePublicId && publicId !== current.mobilePublicId) {
+          await deleteFromCloudinary(current.mobilePublicId, "image");
+        }
+        images[index] = updateMobileAsset(current, url, publicId);
+        persistImages(hero, images);
+      } else if (!isMobileVariant) {
+        if (url?.trim() && publicId?.trim() && current.publicId && publicId !== current.publicId) {
           await deleteFromCloudinary(current.publicId, "image");
         }
-        images[index] = {
-          url: url.trim(),
-          publicId: publicId.trim(),
-          heading: copy.heading ?? current.heading,
-          subheading: copy.subheading ?? current.subheading,
-          buttonText: copy.buttonText ?? current.buttonText,
-          buttonLink: copy.buttonLink ?? current.buttonLink,
-        };
-        persistImages(hero, images);
-      } else {
-        const next: HeroAsset = {
-          ...current,
-          heading: copy.heading ?? current.heading,
-          subheading: copy.subheading ?? current.subheading,
-          buttonText: copy.buttonText ?? current.buttonText,
-          buttonLink: copy.buttonLink ?? current.buttonLink,
-        };
-        if (!next.url) {
+        current = updateDesktopAsset(current, copy, url, publicId);
+        if (!current.url) {
           return NextResponse.json(
             { error: "Upload media before saving slide text" },
             { status: 400 }
           );
         }
-        images[index] = next;
+        images[index] = current;
         persistImages(hero, images);
+      } else {
+        return NextResponse.json({ error: "Upload mobile banner first" }, { status: 400 });
       }
     }
 

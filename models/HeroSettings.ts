@@ -4,6 +4,8 @@ const AssetSchema = new Schema(
   {
     url: { type: String, default: "" },
     publicId: { type: String, default: "" },
+    mobileUrl: { type: String, default: "" },
+    mobilePublicId: { type: String, default: "" },
     heading: { type: String, default: "" },
     subheading: { type: String, default: "" },
     buttonText: { type: String, default: "" },

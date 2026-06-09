@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -28,7 +28,7 @@ const textItem = {
 
 async function fetchHeroSlides(): Promise<HeroSlide[]> {
   try {
-    const res = await fetch(`/api/hero?t=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch("/api/hero", { cache: "no-store" });
     if (!res.ok) return [];
     const data = await res.json();
     if (!Array.isArray(data.slides)) return [];
@@ -42,6 +42,23 @@ async function fetchHeroSlides(): Promise<HeroSlide[]> {
   } catch {
     return [];
   }
+}
+
+function preloadImage(src: string) {
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
+}
+
+function preloadSlides(slides: HeroSlide[]) {
+  slides.forEach((slide) => {
+    if (slide.type === "image") {
+      preloadImage(slide.src);
+      if (slide.mobileSrc) preloadImage(slide.mobileSrc);
+    } else if (slide.mobileSrc) {
+      preloadImage(slide.mobileSrc);
+    }
+  });
 }
 
 function HeroCta({ text, link }: { text: string; link: string }) {
@@ -66,30 +83,106 @@ function HeroCta({ text, link }: { text: string; link: string }) {
   );
 }
 
-export default function HeroSlider() {
+function HeroSlideMedia({
+  slide,
+  priority,
+  videoRef,
+  onVideoEnded,
+  onVideoTimeUpdate,
+}: {
+  slide: HeroSlide;
+  priority: boolean;
+  videoRef: RefObject<HTMLVideoElement | null>;
+  onVideoEnded: () => void;
+  onVideoTimeUpdate: (e: React.SyntheticEvent<HTMLVideoElement>) => void;
+}) {
+  const imgProps = {
+    alt: "",
+    className: "h-full w-full object-cover",
+    decoding: "async" as const,
+    ...(priority ? { fetchPriority: "high" as const } : {}),
+  };
+
+  if (slide.type === "video") {
+    return (
+      <>
+        {slide.mobileSrc && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            {...imgProps}
+            src={slide.mobileSrc}
+            className={`${imgProps.className} md:hidden`}
+          />
+        )}
+        <video
+          ref={videoRef}
+          key={slide.src}
+          src={slide.src}
+          autoPlay
+          muted
+          playsInline
+          preload={priority ? "auto" : "metadata"}
+          onEnded={onVideoEnded}
+          onTimeUpdate={onVideoTimeUpdate}
+          className={`h-full w-full object-cover ${slide.mobileSrc ? "hidden md:block" : ""}`}
+        />
+      </>
+    );
+  }
+
+  if (slide.mobileSrc) {
+    return (
+      <>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img {...imgProps} src={slide.mobileSrc} className={`${imgProps.className} md:hidden`} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          {...imgProps}
+          src={slide.src}
+          className={`${imgProps.className} hidden md:block`}
+        />
+      </>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img {...imgProps} src={slide.src} />
+  );
+}
+
+interface HeroSliderProps {
+  initialSlides: HeroSlide[];
+}
+
+export default function HeroSlider({ initialSlides }: HeroSliderProps) {
   const reduced = useReducedMotion();
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
-  const [ready, setReady] = useState(false);
+  const [slides, setSlides] = useState<HeroSlide[]>(initialSlides);
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const loadSlides = useCallback(() => {
+  const refreshSlides = useCallback(() => {
     fetchHeroSlides().then((next) => {
-      setSlides(next);
-      setCurrent(0);
-      setProgress(0);
-      setReady(true);
+      if (next.length > 0) {
+        setSlides(next);
+        setCurrent(0);
+        setProgress(0);
+        preloadSlides(next);
+      }
     });
   }, []);
 
   useEffect(() => {
-    loadSlides();
-    const onFocus = () => loadSlides();
+    preloadSlides(initialSlides);
+  }, [initialSlides]);
+
+  useEffect(() => {
+    const onFocus = () => refreshSlides();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [loadSlides]);
+  }, [refreshSlides]);
 
   const goTo = useCallback(
     (index: number) => {
@@ -126,10 +219,6 @@ export default function HeroSlider() {
     v.play().catch(() => {});
   }, [current, slides]);
 
-  if (!ready) {
-    return <section className={`relative h-screen w-full ${EMPTY_BG}`} aria-hidden />;
-  }
-
   if (slides.length === 0) {
     return (
       <section
@@ -153,32 +242,23 @@ export default function HeroSlider() {
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${current}-${slide.src}`}
+          key={`${current}-${slide.src}-${slide.mobileSrc ?? ""}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: DURATION.slow, ease: EASE_OUT }}
           className="absolute inset-0"
         >
-          {slide.type === "video" ? (
-            <video
-              ref={videoRef}
-              key={slide.src}
-              src={slide.src}
-              autoPlay
-              muted
-              playsInline
-              onEnded={next}
-              onTimeUpdate={(e) => {
-                const v = e.currentTarget;
-                if (v.duration) setProgress((v.currentTime / v.duration) * 100);
-              }}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={slide.src} alt="" className="h-full w-full object-cover" />
-          )}
+          <HeroSlideMedia
+            slide={slide}
+            priority={current === 0}
+            videoRef={videoRef}
+            onVideoEnded={next}
+            onVideoTimeUpdate={(e) => {
+              const v = e.currentTarget;
+              if (v.duration) setProgress((v.currentTime / v.duration) * 100);
+            }}
+          />
         </motion.div>
       </AnimatePresence>
 

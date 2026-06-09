@@ -15,6 +15,7 @@ import { BRAND_TAGLINE } from "@/data/categories";
 import {
   EMPTY_HERO_ASSET,
   imageSlot,
+  mobilePendingKey,
   type HeroAsset,
   type HeroData,
   type HeroSlot,
@@ -62,6 +63,7 @@ export default function HeroManager() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [deleteSlot, setDeleteSlot] = useState<string | null>(null);
+  const [deleteMobileSlot, setDeleteMobileSlot] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [addingImage, setAddingImage] = useState(false);
 
@@ -120,6 +122,14 @@ export default function HeroManager() {
     return { ...EMPTY_HERO_ASSET };
   }
 
+  function mobilePreviewUrl(slot: string): string | undefined {
+    const mobileKey = mobilePendingKey(slot);
+    const p = pending[mobileKey];
+    if (p?.previewUrl) return p.previewUrl;
+    if (p?.url && p.publicId) return p.url;
+    return assetForSlot(slot).mobileUrl || undefined;
+  }
+
   function updateCopy(slot: string, patch: Partial<CopyDraft>) {
     setCopyDrafts((prev) => ({
       ...prev,
@@ -136,7 +146,10 @@ export default function HeroManager() {
       [slot]: { url: blobPreview, publicId: "", previewUrl: blobPreview },
     }));
 
-    const folder = slot === VIDEO_SLOT ? "hero/video" : "hero/images";
+    const isMobileUpload = slot.endsWith(":mobile");
+    const baseSlot = isMobileUpload ? slot.slice(0, -":mobile".length) : slot;
+    const folder =
+      baseSlot === VIDEO_SLOT && !isMobileUpload ? "hero/video" : "hero/images";
     try {
       const data = await uploadWithProgress(file, folder, (pct) =>
         setUploadPercent((p) => ({ ...p, [slot]: pct }))
@@ -239,6 +252,48 @@ export default function HeroManager() {
     }
   }
 
+  async function saveMobileSlot(slot: string) {
+    const mobileKey = mobilePendingKey(slot);
+    const p = pending[mobileKey];
+    if (!p?.url || !p.publicId) {
+      toast("Upload a mobile banner first", "error");
+      return;
+    }
+    if (!assetForSlot(slot).url) {
+      toast("Save the desktop banner before adding mobile", "error");
+      return;
+    }
+
+    setSaving(mobileKey);
+    try {
+      const res = await fetch("/api/admin/hero", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slot,
+          variant: "mobile",
+          url: p.url,
+          publicId: p.publicId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Save failed");
+
+      setHero(data);
+      syncCopyFromHero(data);
+      setPending((prev) => {
+        const next = { ...prev };
+        delete next[mobileKey];
+        return next;
+      });
+      toast("Mobile banner saved");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to save mobile banner", "error");
+    } finally {
+      setSaving(null);
+    }
+  }
+
   async function confirmDelete() {
     if (!deleteSlot) return;
     setDeleting(true);
@@ -255,6 +310,7 @@ export default function HeroManager() {
       setPending((prev) => {
         const next = { ...prev };
         delete next[deleteSlot];
+        delete next[mobilePendingKey(deleteSlot)];
         return next;
       });
       toast("Asset removed from hero");
@@ -263,6 +319,33 @@ export default function HeroManager() {
     } finally {
       setDeleting(false);
       setDeleteSlot(null);
+    }
+  }
+
+  async function confirmDeleteMobile() {
+    if (!deleteMobileSlot) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/hero", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slot: deleteMobileSlot, action: "delete-mobile" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setHero(data);
+      syncCopyFromHero(data);
+      setPending((prev) => {
+        const next = { ...prev };
+        delete next[mobilePendingKey(deleteMobileSlot)];
+        return next;
+      });
+      toast("Mobile banner removed");
+    } catch {
+      toast("Failed to remove mobile banner", "error");
+    } finally {
+      setDeleting(false);
+      setDeleteMobileSlot(null);
     }
   }
 
@@ -287,6 +370,14 @@ export default function HeroManager() {
       copy.subheading !== saved.subheading ||
       copy.buttonText !== saved.buttonText ||
       copy.buttonLink !== saved.buttonLink;
+
+    const mobileKey = mobilePendingKey(key);
+    const mobileUrl = mobilePreviewUrl(key);
+    const savedMobileUrl = saved.mobileUrl;
+    const hasMobileAsset = Boolean(mobileUrl);
+    const hasMobilePending = Boolean(pending[mobileKey]?.publicId);
+    const isMobileUploading = uploading === mobileKey;
+    const isMobileSaving = saving === mobileKey;
 
     return (
       <li
@@ -434,8 +525,96 @@ export default function HeroManager() {
         </div>
         {savedUrl && (
           <p className="mt-2 truncate text-xs text-slate-400" title={savedUrl}>
-            Saved: {savedUrl}
+            Desktop: {savedUrl}
           </p>
+        )}
+
+        {savedUrl && (
+          <div className="mt-6 space-y-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-slate-500" />
+              <p className="text-sm font-semibold text-slate-800">Mobile banner (optional)</p>
+              {hasMobilePending && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                  Unsaved
+                </span>
+              )}
+              {savedMobileUrl && !hasMobilePending && (
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                  Live on mobile
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500">
+              Portrait image shown on phones. If empty, the desktop banner is used on mobile.
+            </p>
+
+            <div className="flex min-h-[140px] items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+              {hasMobileAsset ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={mobileUrl}
+                  alt={`${label} mobile`}
+                  className="max-h-40 w-full object-contain"
+                />
+              ) : (
+                <p className="text-sm text-slate-400">No mobile banner</p>
+              )}
+            </div>
+
+            {isMobileUploading && (
+              <UploadProgress
+                percent={uploadPercent[mobileKey] ?? 0}
+                label="Uploading mobile banner..."
+              />
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-slate-50">
+                <Upload className="h-4 w-4" />
+                {isMobileUploading
+                  ? "Uploading..."
+                  : hasMobileAsset
+                    ? "Replace mobile"
+                    : "Upload mobile"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={isMobileUploading || isMobileSaving}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleFileSelect(mobileKey, f);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              {hasMobilePending && (
+                <button
+                  type="button"
+                  onClick={() => saveMobileSlot(key)}
+                  disabled={isMobileSaving || !pending[mobileKey]?.publicId}
+                  className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-primary shadow-sm disabled:opacity-60"
+                >
+                  {isMobileSaving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  Save mobile
+                </button>
+              )}
+              {(savedMobileUrl || hasMobileAsset) && !hasMobilePending && (
+                <button
+                  type="button"
+                  onClick={() => setDeleteMobileSlot(key)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" /> Remove mobile
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </li>
     );
@@ -454,9 +633,8 @@ export default function HeroManager() {
       <header>
         <h1 className="font-display text-2xl font-bold text-slate-900">Hero Banner</h1>
         <p className="text-slate-500">
-          Upload a video or any number of images to Cloudinary, set heading and button text per
-          slide, then save. Videos upload directly to Cloudinary (supports MP4, MOV, WebM, MKV up
-          to 100MB+).
+          Upload a video or any number of images, optionally add a mobile-only banner per slide,
+          set heading and button text, then save. Videos support MP4, MOV, WebM, MKV up to 100MB+.
         </p>
       </header>
 
@@ -501,6 +679,15 @@ export default function HeroManager() {
         loading={deleting}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteSlot(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteMobileSlot)}
+        title="Remove mobile banner?"
+        message="This removes the mobile-only image. Phones will show the desktop banner instead."
+        loading={deleting}
+        onConfirm={confirmDeleteMobile}
+        onCancel={() => setDeleteMobileSlot(null)}
       />
     </section>
   );
