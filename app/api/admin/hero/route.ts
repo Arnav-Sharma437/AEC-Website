@@ -5,8 +5,8 @@ import { requireAdminSession } from "@/lib/admin-api";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 import {
   normalizeHeroDoc,
+  parseHeroSlot,
   EMPTY_HERO_ASSET,
-  type HeroSlot,
   type HeroAsset,
 } from "@/lib/hero-utils";
 
@@ -31,6 +31,14 @@ function copyFields(body: Record<string, unknown>) {
   };
 }
 
+function persistImages(hero: InstanceType<typeof HeroSettings>, images: HeroAsset[]) {
+  hero.set("images", images);
+  hero.markModified("images");
+  hero.set("image1", undefined);
+  hero.set("image2", undefined);
+  hero.set("image3", undefined);
+}
+
 export async function GET() {
   const { error } = await requireAdminSession();
   if (error) return error;
@@ -52,65 +60,126 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { slot, url, publicId, action } = body as {
-      slot: HeroSlot;
+      slot?: string;
       url?: string;
       publicId?: string;
-      action?: "delete";
+      action?: "delete" | "add";
     };
 
-    if (!slot || !["video", "image1", "image2", "image3"].includes(slot)) {
+    if (action === "add") {
+      await connectDB();
+      const hero = await getOrCreateHero();
+      const normalized = normalizeHeroDoc(hero.toObject() as Record<string, unknown>);
+      const images = [...normalized.images, { ...EMPTY_HERO_ASSET }];
+      persistImages(hero, images);
+      await hero.save();
+      return NextResponse.json(
+        normalizeHeroDoc(hero.toObject() as Record<string, unknown>)
+      );
+    }
+
+    if (!slot) {
+      return NextResponse.json({ error: "Invalid slot" }, { status: 400 });
+    }
+
+    const parsed = parseHeroSlot(slot);
+    if (!parsed) {
       return NextResponse.json({ error: "Invalid slot" }, { status: 400 });
     }
 
     await connectDB();
     const hero = await getOrCreateHero();
-    const current = normalizeHeroDoc(hero.toObject() as Record<string, unknown>)[
-      slot
-    ];
+    const normalized = normalizeHeroDoc(hero.toObject() as Record<string, unknown>);
     const copy = copyFields(body);
 
-    if (action === "delete") {
-      if (current.publicId) {
-        await deleteFromCloudinary(
-          current.publicId,
-          slot === "video" ? "video" : "image"
-        );
+    if (parsed.type === "video") {
+      const current = normalized.video;
+
+      if (action === "delete") {
+        if (current.publicId) {
+          await deleteFromCloudinary(current.publicId, "video");
+        }
+        hero.set("video", { ...EMPTY_HERO_ASSET });
+        hero.markModified("video");
+      } else if (url?.trim() && publicId?.trim()) {
+        if (current.publicId && publicId !== current.publicId) {
+          await deleteFromCloudinary(current.publicId, "video");
+        }
+        const next: HeroAsset = {
+          url: url.trim(),
+          publicId: publicId.trim(),
+          heading: copy.heading ?? current.heading,
+          subheading: copy.subheading ?? current.subheading,
+          buttonText: copy.buttonText ?? current.buttonText,
+          buttonLink: copy.buttonLink ?? current.buttonLink,
+        };
+        hero.set("video", next);
+        hero.markModified("video");
+      } else {
+        const next: HeroAsset = {
+          ...current,
+          heading: copy.heading ?? current.heading,
+          subheading: copy.subheading ?? current.subheading,
+          buttonText: copy.buttonText ?? current.buttonText,
+          buttonLink: copy.buttonLink ?? current.buttonLink,
+        };
+        if (!next.url) {
+          return NextResponse.json(
+            { error: "Upload media before saving slide text" },
+            { status: 400 }
+          );
+        }
+        hero.set("video", next);
+        hero.markModified("video");
       }
-      hero.set(slot, { ...EMPTY_HERO_ASSET });
-    } else if (url?.trim() && publicId?.trim()) {
-      if (current.publicId && publicId !== current.publicId) {
-        await deleteFromCloudinary(
-          current.publicId,
-          slot === "video" ? "video" : "image"
-        );
-      }
-      const next: HeroAsset = {
-        url: url.trim(),
-        publicId: publicId.trim(),
-        heading: copy.heading ?? current.heading,
-        subheading: copy.subheading ?? current.subheading,
-        buttonText: copy.buttonText ?? current.buttonText,
-        buttonLink: copy.buttonLink ?? current.buttonLink,
-      };
-      hero.set(slot, next);
     } else {
-      const next: HeroAsset = {
-        ...current,
-        heading: copy.heading ?? current.heading,
-        subheading: copy.subheading ?? current.subheading,
-        buttonText: copy.buttonText ?? current.buttonText,
-        buttonLink: copy.buttonLink ?? current.buttonLink,
-      };
-      if (!next.url) {
-        return NextResponse.json(
-          { error: "Upload media before saving slide text" },
-          { status: 400 }
-        );
+      const index = parsed.index;
+      const images = [...normalized.images];
+
+      while (images.length <= index) {
+        images.push({ ...EMPTY_HERO_ASSET });
       }
-      hero.set(slot, next);
+
+      const current = images[index];
+
+      if (action === "delete") {
+        if (current.publicId) {
+          await deleteFromCloudinary(current.publicId, "image");
+        }
+        images.splice(index, 1);
+        persistImages(hero, images);
+      } else if (url?.trim() && publicId?.trim()) {
+        if (current.publicId && publicId !== current.publicId) {
+          await deleteFromCloudinary(current.publicId, "image");
+        }
+        images[index] = {
+          url: url.trim(),
+          publicId: publicId.trim(),
+          heading: copy.heading ?? current.heading,
+          subheading: copy.subheading ?? current.subheading,
+          buttonText: copy.buttonText ?? current.buttonText,
+          buttonLink: copy.buttonLink ?? current.buttonLink,
+        };
+        persistImages(hero, images);
+      } else {
+        const next: HeroAsset = {
+          ...current,
+          heading: copy.heading ?? current.heading,
+          subheading: copy.subheading ?? current.subheading,
+          buttonText: copy.buttonText ?? current.buttonText,
+          buttonLink: copy.buttonLink ?? current.buttonLink,
+        };
+        if (!next.url) {
+          return NextResponse.json(
+            { error: "Upload media before saving slide text" },
+            { status: 400 }
+          );
+        }
+        images[index] = next;
+        persistImages(hero, images);
+      }
     }
 
-    hero.markModified(slot);
     await hero.save();
 
     const updated = normalizeHeroDoc(hero.toObject() as Record<string, unknown>);

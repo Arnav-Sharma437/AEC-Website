@@ -16,6 +16,8 @@ const HeroSettingsSchema = new Schema(
   {
     key: { type: String, default: "main", unique: true },
     video: { type: AssetSchema, default: () => ({}) },
+    images: { type: [AssetSchema], default: () => [] },
+    // Legacy slots — migrated to `images` on read; kept for existing DB documents
     image1: { type: AssetSchema, default: () => ({}) },
     image2: { type: AssetSchema, default: () => ({}) },
     image3: { type: AssetSchema, default: () => ({}) },

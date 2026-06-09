@@ -1,4 +1,4 @@
-export type HeroSlot = "video" | "image1" | "image2" | "image3";
+export type HeroSlot = "video" | `image-${number}`;
 
 export interface HeroAsset {
   url: string;
@@ -11,9 +11,7 @@ export interface HeroAsset {
 
 export interface HeroData {
   video: HeroAsset;
-  image1: HeroAsset;
-  image2: HeroAsset;
-  image3: HeroAsset;
+  images: HeroAsset[];
 }
 
 export interface HeroSlide {
@@ -36,16 +34,44 @@ function parseAsset(raw: Record<string, unknown> | undefined): HeroAsset {
   };
 }
 
-export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData {
-  const slot = (key: HeroSlot): HeroAsset =>
-    parseAsset(doc?.[key] as Record<string, unknown> | undefined);
+const LEGACY_IMAGE_KEYS = ["image1", "image2", "image3"] as const;
 
-  return {
-    video: slot("video"),
-    image1: slot("image1"),
-    image2: slot("image2"),
-    image3: slot("image3"),
-  };
+function imagesFromLegacy(doc: Record<string, unknown>): HeroAsset[] {
+  const legacy = LEGACY_IMAGE_KEYS.map((key) =>
+    parseAsset(doc[key] as Record<string, unknown> | undefined)
+  );
+  if (!legacy.some((asset) => asset.url)) return [];
+  return legacy;
+}
+
+export function imageSlot(index: number): HeroSlot {
+  return `image-${index}`;
+}
+
+export function parseHeroSlot(
+  slot: string
+): { type: "video" } | { type: "image"; index: number } | null {
+  if (slot === "video") return { type: "video" };
+  const match = /^image-(\d+)$/.exec(slot);
+  if (match) return { type: "image", index: Number(match[1]) };
+  const legacy: Record<string, number> = { image1: 0, image2: 1, image3: 2 };
+  if (slot in legacy) return { type: "image", index: legacy[slot] };
+  return null;
+}
+
+export function normalizeHeroDoc(doc: Record<string, unknown> | null): HeroData {
+  const video = parseAsset(doc?.video as Record<string, unknown> | undefined);
+
+  let images: HeroAsset[] = [];
+  if (Array.isArray(doc?.images)) {
+    images = doc.images.map((img) =>
+      parseAsset(img as Record<string, unknown> | undefined)
+    );
+  } else if (doc) {
+    images = imagesFromLegacy(doc);
+  }
+
+  return { video, images };
 }
 
 export function assetToSlide(
@@ -67,7 +93,7 @@ export function heroToSlides(hero: HeroData): HeroSlide[] {
   const slides: HeroSlide[] = [];
   const video = assetToSlide("video", hero.video);
   if (video) slides.push(video);
-  for (const img of [hero.image1, hero.image2, hero.image3]) {
+  for (const img of hero.images) {
     const slide = assetToSlide("image", img);
     if (slide) slides.push(slide);
   }
