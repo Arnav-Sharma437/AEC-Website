@@ -12,7 +12,7 @@ import {
 } from "@/lib/motion";
 
 const stats = [
-  { value: "25+", label: "Years Experience" },
+  { value: "30+", label: "Years Experience" },
   { value: `${PRODUCT_COUNT}+`, label: "Core Products" },
   { value: "3", label: "Branches Pan India" },
   { value: "ISO", label: "Certified" },
