@@ -29,7 +29,7 @@ const reasons: {
   {
     num: 1,
     icon: Award,
-    title: "Trusted Since 1999",
+    title: "Trusted Since 1995",
     desc: "Over two decades of serving India's leading construction and industrial companies",
   },
   {
