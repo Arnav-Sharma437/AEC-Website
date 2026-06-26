@@ -2,7 +2,7 @@ export const FOUNDER = {
   name: "Mr. Hozefa Yusuf Ali Dhinojwala",
   designation: "Founder & Principal Advisor, Alamdaar Engineering Concern",
   preview:
-    "When I established Alamdaar Engineering Concern more than 25 years ago, it was with a firm belief that quality, reliability, and client trust are the cornerstones of a successful engineering business. Over the decades, we have grown from a small trading firm into a pan-India engineering solutions provider.",
+    "When I established Alamdaar Engineering Concern more than 30 years ago, it was with a firm belief that quality, reliability, and client trust are the cornerstones of a successful engineering business. Over the decades, we have grown from a small trading firm into a pan-India engineering solutions provider.",
   paragraphs: [
     "When I established Alamdaar Engineering Concern more than 25 years ago, it was with a firm belief that quality, reliability, and client trust are the cornerstones of a successful engineering business.",
     "Over the decades, we have grown from a small trading firm into a pan-India engineering solutions provider, serving clients across construction, infrastructure, marine, and industrial sectors with lifting solutions, rigging accessories, material handling equipment, and scaffolding & mivan shuttering items.",
