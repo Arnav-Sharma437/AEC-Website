@@ -19,12 +19,12 @@ const tabs = [
   {
     id: "who",
     label: "Who We Are",
-    content: `We Are A Client-Focused Engineering Firm With 25+ Years Of Experience, Committed To Precision, Dependable Service, And Building Lasting Partnerships Through Excellence. AEC Is A Pan-India Supplier Of Certified Lifting, Rigging, Hoists, And Material Handling Equipment, Serving Construction, Infrastructure, Marine, And Industrial Sectors From Our Howrah Headquarters And Regional Branches.`,
+    content: `We Are A Client-Focused Engineering Firm With 30+ Years Of Experience, Committed To Precision, Dependable Service, And Building Lasting Partnerships Through Excellence. AEC Is A Pan-India Supplier Of Certified Lifting, Rigging, Hoists, And Material Handling Equipment, Serving Construction, Infrastructure, Marine, And Industrial Sectors From Our Howrah Headquarters And Regional Branches.`,
   },
   {
     id: "story",
     label: "Our Story",
-    content: `Alamdaar Engineering Concern Was Established Over 25 Years Ago As A Howrah-Based Trading Firm Supplying Lifting And Rigging Hardware To Local Industry. Through Consistent Quality And Client Trust, We Grew Into A Multi-Branch Operation With Offices In Hyderabad And Chennai, Expanding Our Catalogue To Hoists, Winches, Material Handling Equipment, And Scaffolding/Mivan Shuttering Items. ${BRAND_TAGLINE}`,
+    content: `Alamdaar Engineering Concern Was Established Over 30 Years Ago As A Howrah-Based Trading Firm Supplying Lifting And Rigging Hardware To Local Industry. Through Consistent Quality And Client Trust, We Grew Into A Multi-Branch Operation With Offices In Hyderabad And Chennai, Expanding Our Catalogue To Hoists, Winches, Material Handling Equipment, And Scaffolding/Mivan Shuttering Items. ${BRAND_TAGLINE}`,
   },
   {
     id: "commitment",
@@ -35,7 +35,7 @@ const tabs = [
 ];
 
 const stats = [
-  { value: "25+", label: "Years" },
+  { value: "30+", label: "Years" },
   { value: "3", label: "Branches" },
   { value: String(PRODUCT_COUNT), label: "Core Products" },
   { value: "100+", label: "Clients" },
