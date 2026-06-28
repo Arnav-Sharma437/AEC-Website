@@ -44,7 +44,7 @@ export default function OurCertifications() {
       <article className="mx-auto max-w-7xl px-4 lg:px-8">
         <SectionHeading title="Our Certifications" />
         <motion.ul
-          className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2"
+          className="mx-auto grid max-w-4xl gap-8 grid-cols-1 sm:grid-cols-2"
           variants={staggerContainer}
           initial={reduced ? false : "hidden"}
           whileInView={reduced ? undefined : "visible"}

@@ -12,7 +12,7 @@ export default function OurClients() {
   // Define client groups by their imageFile property
   const row1Images = ["Client-1", "Client-2", "Client-13", "Client-14", "Client-15", "Client-16"];
   const row2Images = ["Client-3", "Client-4", "Client-5", "Client-6", "Client-7", "Client-8"];
-  const row3Images = ["Client-9", "Client-10", "Client-11", "Client-12"];
+  const row3Images = ["Client-9", "Client-10", "Client-11", "Client-12", "Client-17", "Client-18"];
 
   const row1 = row1Images.map(img => clients.find(c => c.imageFile === img)).filter((c): c is Client => !!c);
   const row2 = row2Images.map(img => clients.find(c => c.imageFile === img)).filter((c): c is Client => !!c);

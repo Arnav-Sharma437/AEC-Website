@@ -26,4 +26,6 @@ export const clients: Client[] = [
   { id: "14", name: "Dilip Buildcon", imageFile: "Client-14" },
   { id: "15", name: "KEC International", imageFile: "Client-15" },
   { id: "16", name: "SREI Infrastructure", imageFile: "Client-16" },
+  { id: "17", name: "Client-17", imageFile: "Client-17" },
+  { id: "18", name: "Client-18", imageFile: "Client-18" },
 ];
