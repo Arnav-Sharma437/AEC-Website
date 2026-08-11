@@ -22,6 +22,7 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.aecliftingsolution.com"),
   title: {
     default: "Alamdaar Engineering Concern | Industrial Equipment",
     template: "%s | AEC",
@@ -32,6 +33,9 @@ export const metadata: Metadata = {
     icon: [{ url: "/icon.png", type: "image/png" }],
     shortcut: [{ url: "/icon.png", type: "image/png" }],
     apple: [{ url: "/icon.png", type: "image/png" }],
+  },
+  verification: {
+    google: "vrvdaJG_HzrJnWgdU9P1XTZx24q953ajcgOBf3TXFBU",
   },
 };
 
