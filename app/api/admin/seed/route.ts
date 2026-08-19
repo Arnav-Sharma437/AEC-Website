@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import { Admin } from "@/models/Admin";
 import { seedDefaultAdmins } from "@/lib/seed-admins";
-import { ARNAVADMIN_PASSWORD_PLAIN } from "@/lib/admin-credentials";
+import { ARNAVADMIN_PASSWORD_PLAIN, ARNAVADMIN_USERNAME } from "@/lib/admin-credentials";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const results = await seedDefaultAdmins();
 
-    const arnav = await Admin.findOne({ username: "arnavadmin" }).lean();
+    const arnav = await Admin.findOne({ username: ARNAVADMIN_USERNAME.toLowerCase() }).lean();
     const loginTest = arnav?.password
       ? await bcrypt.compare(ARNAVADMIN_PASSWORD_PLAIN, arnav.password)
       : false;

@@ -5,9 +5,9 @@ import { useSession, signOut } from "next-auth/react";
 import { LogOut, Menu } from "lucide-react";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/admin": "Dashboard",
-  "/admin/products": "Products",
-  "/admin/hero": "Hero Banner",
+  "/aec~!@": "Dashboard",
+  "/aec~!@/products": "Products",
+  "/aec~!@/hero": "Hero Banner",
 };
 
 export default function AdminHeader({
@@ -22,7 +22,7 @@ export default function AdminHeader({
 
   const title =
     PAGE_TITLES[pathname] ||
-    (pathname.startsWith("/admin/products") ? "Products" : "Admin");
+    (pathname.startsWith("/aec~!@/products") ? "Products" : "Admin");
 
   const displayName =
     session?.user?.name || session?.user?.email?.split("@")[0] || "Admin";
@@ -55,7 +55,7 @@ export default function AdminHeader({
         </div>
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={() => signOut({ callbackUrl: "/aec~!@/login" })}
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
         >
           <LogOut className="h-4 w-4" />

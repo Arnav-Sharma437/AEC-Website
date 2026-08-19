@@ -31,16 +31,16 @@ const Admin = mongoose.models.Admin || mongoose.model("Admin", AdminSchema);
 /** Default admins — add more here when ready */
 const ADMINS = [
   {
-    username: "arnavadmin",
-    password: "admin@123",
-    name: "Arnav Admin",
+    username: "Aec@Lifting#2026",
+    password: "AEC$Admin@Howrah1",
+    name: "AEC Admin",
     role: "superadmin",
   },
 ];
 
-/** Pre-computed bcrypt for admin@123 */
+/** Pre-computed bcrypt for AEC$Admin@Howrah1 */
 const ARNAVADMIN_HASH =
-  "$2b$12$FqGHdhD6KAXvgrHFOWg2O.6VqBDaNg6V9FpuyKua7uDQ5oV9vkPLS";
+  "$2b$12$dtZVeDBbRXpV/u6Qy/AbiON8N0AnmHuAYRdXjTNq.HpAAzsD0kkT2";
 
 async function upsertAdmin({ username, password, name, role, useFixedHash }) {
   const hash = useFixedHash ? ARNAVADMIN_HASH : await bcrypt.hash(password, 12);
@@ -91,7 +91,7 @@ async function main() {
   }
 
   await mongoose.disconnect();
-  console.log("\nLogin at /admin/login with your username and password.");
+  console.log("\nLogin at /aec~!@/login with your username and password.");
 }
 
 main().catch((e) => {

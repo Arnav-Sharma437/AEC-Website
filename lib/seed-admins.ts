@@ -12,7 +12,7 @@ export const DEFAULT_ADMINS = [
     username: ARNAVADMIN_USERNAME,
     password: ARNAVADMIN_PASSWORD_PLAIN,
     passwordHash: ARNAVADMIN_PASSWORD_HASH,
-    name: "Arnav Admin",
+    name: "AEC Admin",
     role: "superadmin",
   },
 ];

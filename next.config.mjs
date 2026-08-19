@@ -7,6 +7,14 @@ const nextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/aec~\\!\\@/:path*",
+        destination: "/admin/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

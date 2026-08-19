@@ -28,7 +28,7 @@ export async function GET() {
       .lean();
 
     const arnav = await Admin.findOne({
-      username: ARNAVADMIN_USERNAME,
+      username: ARNAVADMIN_USERNAME.toLowerCase(),
     }).lean();
 
     let passwordTest = false;

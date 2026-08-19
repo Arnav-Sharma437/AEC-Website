@@ -11,9 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/admin", label: "Analytics", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/hero", label: "Hero Banner", icon: ImageIcon },
+  { href: "/aec~!@", label: "Analytics", icon: LayoutDashboard },
+  { href: "/aec~!@/products", label: "Products", icon: Package },
+  { href: "/aec~!@/hero", label: "Hero Banner", icon: ImageIcon },
 ];
 
 export default function AdminSidebar({
@@ -34,7 +34,7 @@ export default function AdminSidebar({
       <nav className="flex-1 space-y-1 px-3 py-4">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
-            pathname === href || (href !== "/admin" && pathname.startsWith(href));
+            pathname === href || (href !== "/aec~!@" && pathname.startsWith(href));
           return (
             <Link
               key={href}

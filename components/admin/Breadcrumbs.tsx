@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
 
 const LABELS: Record<string, string> = {
-  admin: "Dashboard",
+  "aec~!@": "Dashboard",
   products: "Products",
   hero: "Hero Banner",
 };
@@ -18,9 +18,9 @@ export default function Breadcrumbs() {
   let path = "";
   for (const seg of segments) {
     path += `/${seg}`;
-    if (seg === "admin" && segments.length === 1) {
+    if (seg === "aec~!@" && segments.length === 1) {
       crumbs.push({ href: path, label: "Dashboard" });
-    } else if (seg !== "admin") {
+    } else if (seg !== "aec~!@") {
       crumbs.push({ href: path, label: LABELS[seg] || seg });
     }
   }
@@ -29,7 +29,7 @@ export default function Breadcrumbs() {
 
   return (
     <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1 text-sm text-gray-500">
-      <Link href="/admin" className="flex items-center hover:text-gray-900">
+      <Link href="/aec~!@" className="flex items-center hover:text-gray-900">
         <Home className="h-4 w-4" />
       </Link>
       {crumbs.map((c, i) => (
