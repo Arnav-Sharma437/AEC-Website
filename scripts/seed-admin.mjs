@@ -63,22 +63,25 @@ async function main() {
   if (!process.env.MONGODB_URI) {
     loadEnv();
   }
-  if (!process.env.MONGODB_URI?.trim()) {
-    console.error(
-      "MONGODB_URI is missing or empty. Add your MongoDB Atlas connection string in Vercel → Settings → Environment Variables (Production)."
-    );
-    process.exit(1);
-  }
 
-  await mongoose.connect(process.env.MONGODB_URI);
-
-  // CLI: npm run seed:admin -- <username> <password> [display name]
   const cliUser = process.argv[2];
   const cliPass = process.argv[3];
   const cliName = process.argv[4];
 
   const envUser = process.env.ADMIN_USERNAME;
   const envPass = process.env.ADMIN_PASSWORD;
+
+  if (!process.env.MONGODB_URI?.trim()) {
+    console.log("MONGODB_URI is not set. Skipping database seeding/updates.");
+    process.exit(0);
+  }
+
+  if (!cliUser && !cliPass && (!envUser || !envPass)) {
+    console.log("No credentials provided via CLI or environment variables. Skipping admin updates.");
+    process.exit(0);
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI);
 
   if (cliUser && cliPass) {
     await upsertAdmin({
@@ -104,10 +107,6 @@ async function main() {
         role: "superadmin",
       });
       console.log(`✓ Default admin "${envUser}" created via environment variables.`);
-    }
-  } else {
-    for (const admin of ADMINS) {
-      await upsertAdmin({ ...admin, useFixedHash: true });
     }
   }
 
