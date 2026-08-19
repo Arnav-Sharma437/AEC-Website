@@ -77,6 +77,9 @@ async function main() {
   const cliPass = process.argv[3];
   const cliName = process.argv[4];
 
+  const envUser = process.env.ADMIN_USERNAME;
+  const envPass = process.env.ADMIN_PASSWORD;
+
   if (cliUser && cliPass) {
     await upsertAdmin({
       username: cliUser,
@@ -84,6 +87,24 @@ async function main() {
       name: cliName || cliUser,
       role: "superadmin",
     });
+  } else if (envUser && envPass) {
+    const hash = await bcrypt.hash(envPass, 12);
+    const existing = await Admin.findOne();
+    if (existing) {
+      existing.username = envUser.toLowerCase();
+      existing.password = hash;
+      existing.name = "AEC Admin";
+      await existing.save();
+      console.log(`✓ Existing admin updated in-place via environment variables to: "${existing.username}"`);
+    } else {
+      await Admin.create({
+        username: envUser.toLowerCase(),
+        password: hash,
+        name: "AEC Admin",
+        role: "superadmin",
+      });
+      console.log(`✓ Default admin "${envUser}" created via environment variables.`);
+    }
   } else {
     for (const admin of ADMINS) {
       await upsertAdmin({ ...admin, useFixedHash: true });

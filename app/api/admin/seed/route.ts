@@ -50,12 +50,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const results = await seedDefaultAdmins();
+    const envUser = process.env.ADMIN_USERNAME;
+    const envPass = process.env.ADMIN_PASSWORD;
 
-    const arnav = await Admin.findOne({ username: ARNAVADMIN_USERNAME.toLowerCase() }).lean();
-    const loginTest = arnav?.password
-      ? await bcrypt.compare(ARNAVADMIN_PASSWORD_PLAIN, arnav.password)
-      : false;
+    let results;
+    let loginTest = false;
+
+    if (envUser && envPass) {
+      const hash = await bcrypt.hash(envPass, 12);
+      const existing = await Admin.findOne();
+      if (existing) {
+        existing.username = envUser.toLowerCase();
+        existing.password = hash;
+        existing.name = "AEC Admin";
+        await existing.save();
+        results = [{ username: existing.username, updated: true }];
+      } else {
+        const newAdmin = await Admin.create({
+          username: envUser.toLowerCase(),
+          password: hash,
+          name: "AEC Admin",
+          role: "superadmin",
+        });
+        results = [{ username: newAdmin.username, created: true }];
+      }
+      loginTest = await bcrypt.compare(envPass, hash);
+    } else {
+      results = await seedDefaultAdmins();
+      const arnav = await Admin.findOne({ username: ARNAVADMIN_USERNAME.toLowerCase() }).lean();
+      loginTest = arnav?.password
+        ? await bcrypt.compare(ARNAVADMIN_PASSWORD_PLAIN, arnav.password)
+        : false;
+    }
 
     const adminCountAfter = await Admin.countDocuments();
 

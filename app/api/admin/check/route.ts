@@ -27,14 +27,17 @@ export async function GET() {
       .select("username email name createdAt")
       .lean();
 
+    const targetUsername = (process.env.ADMIN_USERNAME || ARNAVADMIN_USERNAME).toLowerCase();
+    const targetPassword = process.env.ADMIN_PASSWORD || ARNAVADMIN_PASSWORD_PLAIN;
+
     const arnav = await Admin.findOne({
-      username: ARNAVADMIN_USERNAME.toLowerCase(),
+      username: targetUsername,
     }).lean();
 
     let passwordTest = false;
     if (arnav?.password) {
       passwordTest = await bcrypt.compare(
-        ARNAVADMIN_PASSWORD_PLAIN,
+        targetPassword,
         arnav.password
       );
     }
